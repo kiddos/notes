@@ -930,7 +930,7 @@
 
   - element with ratio
 
-  ```
+  ```css
   div.container {
     position: relative;
     width: 100%;
@@ -954,7 +954,7 @@
 
 * vbscript on windows
 
-  ```
+  ```shell
   Option Explicit
   On Error Resume Next
 
@@ -963,7 +963,7 @@
 
   - copy files using object fso
 
-  ```
+  ```shell
   Option Explicit
   ' On Error Resume Next
 
@@ -993,4 +993,91 @@
   ```python
   socketio.run(app, host='0.0.0.0', debug=True,
       certfile='app.crt', keyfile='app.key')
+  ```
+
+
+* tensorflow training out of memory
+  - some gpu might not have enough memory for training large model, might consider changing to cpu
+
+  ```python
+  with tf.device('/cpu:0'):
+    model = Model()
+  ```
+
+
+2017-2-1
+========
+
+* python extract tar
+
+  ```python
+  with tarfile.open(file, 'r:gz') as tf:
+    file_list = tf.getmembers()
+    if not os.path.isfile(os.path.join(output_dir, file_list[0].name)):
+      tf.extractall(output_dir)
+  ```
+
+* sqlite select group by
+
+  ```sqlite
+  SELECT col FROM table GROUP BY col
+  ```
+
+
+2017-2-2
+========
+
+* python sass
+
+  - installation
+
+  ```shell
+  pip install sass
+  ```
+
+  - sample
+
+  ```python
+  import sass
+  sass.compile_string("div { a { color: black}}")
+  ```
+
+
+* python stylus
+
+  - installation
+
+  ```shell
+  pip install stylus
+  ```
+
+  - sample
+
+  ```
+  from stylus import Stylus
+  compiler = Stylus()
+
+  compiler.compile(file_content)
+  ```
+
+
+2017-2-3
+========
+
+* css flex box for center element
+
+  ```css
+  .ele {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  ```
+
+* css no select
+
+  ```css
+  .ele {
+    user-select: none;
+  }
   ```
