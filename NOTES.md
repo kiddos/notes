@@ -1081,3 +1081,287 @@
     user-select: none;
   }
   ```
+
+
+2017-2-4
+========
+
+* nginx web server and flask
+
+  - installation
+
+  ```shell
+  sudo add-apt-repository ppa:nginx/stable
+  sudo apt-get update
+  sudo apt-get install nginx
+  sudo /etc/init.d/nginx start
+  ```
+
+  - configure
+
+  edit the configuration file and restart
+
+  ```shell
+  sudo vim /etc/nginx/sites-enabled/default
+  sudo /etc/init.d/nginx restart
+  ```
+
+
+2017-2-5
+========
+
+* typescript
+
+  cleaner class for javascript
+
+  ```typescript
+  class Student {
+    fullName: string;
+    constructor(public firstName, public middleName, public lastName) {
+      this.fullName = firstName + ' ' + middleName + ' ' + lastName;
+    }
+  }
+
+  interface Person {
+    firstName: string;
+    lastName: string;
+  }
+
+  function greeter(person: Person) {
+    return 'Hello, ' + person.firstName + ' ' + person.lastName;
+  }
+
+  var user = { firstName: 'John', lastName: 'Doe' };
+  document.body.innerHTML = greeter(user)
+  ```
+
+  ```shell
+  tsc student.ts
+  ```
+
+
+2017-2-6
+========
+
+* c++ template programming basic building block
+
+  - values
+
+  ```cpp
+  struct ValueHolder {
+    enum { value = 6 };
+  }
+  ```
+
+  - function
+
+  ```cpp
+  template <int A, int B>
+  struct Adder {
+    enum { result = A + B  };
+  }
+  ```
+
+  - branching
+
+  ```cpp
+  template <typename T1, typename T2>
+  struct SameType {
+    enum { result = 0 };
+  }
+
+  template <typename T>
+  struct SameType<T, T> {
+    enum { result = 1 };
+  }
+  ```
+
+  - recursion
+
+  ```cpp
+  template <unsigned long N>
+  struct Factorial {
+    enum { value = N * Factorial<N-1>::value };
+  }
+
+  template <>
+  struct Factorial<0> {
+    enum { value = 1 };
+  }
+  ```
+
+
+2017-2-7
+========
+
+* c++17 inherit from lambda
+
+  ```cpp
+  #include <utility>
+
+  template <typename Op1, typename Op2>
+  struct Merged : Op1, Op2 {
+    Merged(Op1 op1, Op2 op2) : Op1(op1), Op2(op2) {}
+
+    using Op1::operator();
+    using Op2::operator();
+  };
+
+  int main(void) {
+    auto l1 = []() { return 6; };
+    auto l2 = [](int i) { return i * 6; };
+
+    Merged<decltype(l1), decltype(l2)> merged(l1, l2);
+    merged();
+    merged(10);
+    return 0;
+  }
+  ```
+
+
+2017-2-8
+========
+
+* c++ variadic template
+
+  ```cpp
+  #include <utility>
+  #include <iostream>
+
+  using std::cout;
+
+  struct A {
+    void a() {}
+  };
+
+  struct B {
+    void b() {}
+  };
+
+  template <typename... T>
+  struct C : T... {
+    void c() {}
+  };
+
+  int main(void) {
+    C<A, B> c;
+    c.a();
+    c.b();
+    c.c();
+    return 0;
+  }
+  ```
+
+
+2017-2-9
+========
+
+* c++ sizeof... with variadic template
+
+  ```cpp
+  template<class... Types>
+  struct count {
+      static const std::size_t value = sizeof...(Types);
+  };
+  ```
+
+* c++ lambda capture
+
+  ```
+  template<class ...Args>
+  void f(Args... args) {
+      auto lm = [&, args...] { return g(args...); };
+      lm();
+  }
+  ```
+
+
+2017-2-10
+=========
+
+* c++ stl algorithm function
+
+  ```cpp
+  std::vector<int> v(10);
+  std::iota(v.begin(), v.end(), 0);
+  std::vector<int> v2;
+  std::copy(v.begin(), v.end(), std::back_inserter(v2));
+  std::reverse(v2.begin(), v2.end());
+  std::for_each(v2.begin(), v2.end(), [v2](int i) {
+    return static_cast<int>(i * 1.1);
+  });
+  ```
+
+
+2017-2-11
+=========
+
+* c++11 Raw String
+
+  ```cpp
+  #include <string>
+  #include <iostream>
+
+  int main(void) {
+    std::string str = "Hello\tWorld\n";
+    std::string r_str = R"(Hello\tWorld\n)";
+    std::cout << str << r_str;
+    return 0;
+  }
+  ```
+
+
+2017-2-12
+=========
+
+* c++ variadic function basic building block
+
+  ```cpp
+  template <typename... Args>
+  double sum(double d, Args... args) { return d + sum(args); }
+  ```
+
+
+2017-2-13
+=========
+
+* c++ cheap way for operator=
+
+  ```cpp
+  Object& operator=(const Object& src) {
+    this->~Object();
+    new(this) Object(src);
+  }
+  ```
+
+
+2017-2-14
+=========
+
+* c++ quick include algorithm, iostream, vector
+
+  ```cpp
+  #include <bits/stdc++.h>
+  ```
+
+
+2017-2-15
+=========
+
+* python scrapy for web crawling
+
+  ```python
+  import scrapy
+
+  class BlogSpider(scrapy.Spider):
+    name = 'blogspider'
+    start_urls = ['https://blog.scrapinghub.com']
+
+    def parse(self, response):
+      for title in response.css('h2.entry-title'):
+        yield {'title': title.css('a ::text').extract_first()}
+
+      next_page = response.css('div.prev-post > a ::attr(href)').extract_first()
+      if next_page:
+        yield scrapy.Request(response.urljoin(next_page), callback=self.parse)
+  ```
