@@ -1365,3 +1365,392 @@
       if next_page:
         yield scrapy.Request(response.urljoin(next_page), callback=self.parse)
   ```
+
+
+2017-2-16
+=========
+
+* google benchmark
+
+  ```cpp
+  #include <benchmark/benchmark.h>
+
+  static void BM_memcpy(benchmark::State& state) {
+    float* src = new float[state.range(0)];
+    float* dst = new float[state.range(0)];
+    while (state.KeepRunning()) {
+      memcpy(dst, src, sizeof(float) * state.range(0));
+    }
+    state.SetBytesProcessed(int64_t(state.iterations()) *
+                            int64_t(state.range(0)));
+    delete[] src;
+    delete[] dst;
+  }
+
+  BENCHMARK(BM_memcpy)->RangeMultiplier(2)->Range(8, 8<<10);
+
+  template <typename T>
+  void BM_Sequential(benchmark::State& state) {
+    std::vector<T> v;
+    while (state.KeepRunning()) {
+      for (int i = 0 ; i < state.range(0) ; ++i) {
+        v.push_back(static_cast<T>(i));
+      }
+    }
+    state.SetBytesProcessed(int64_t(state.iterations()) *
+                            int64_t(state.range(0)));
+  }
+
+  BENCHMARK_TEMPLATE(BM_Sequential, int)->RangeMultiplier(2)->Range(1<<0, 8<<10);
+
+  BENCHMARK_MAIN();
+  ```
+
+
+2017-2-17
+=========
+
+* tensorflow r1.0 change a lot of its API
+
+  - cross_entropy need to specify param name
+
+    ```python
+    tf.nn.sigmoid_cross_entropy_with_logits(labels=label, logits=self.logits)
+    tf.nn.softmax_cross_entropy_with_logits(labels=label, logits=self.logits)
+    ```
+
+  - concat is changed to
+
+    ```
+    tf.concat([v1, v2], axis)
+    ```
+
+
+2017-2-18
+=========
+
+* google test with cmake
+
+  ```cpp
+  enable_testing()
+  find_package(GTest REQUIRED)
+  include_directories(${GTEST_INCLUDE_DIRS})
+  set(CMAKE_INCLUDE_CURRENT_DIR on)
+
+  if (TARGET target)
+    set(TEST_LIBS ${GTEST_BOTH_LIBRARIES} pthread target)
+    add_executable(test_target test_src.cpp)
+    target_link_libraries(test_target ${TEST_LIBS})
+    add_test(Test1 test_target)
+  endif ()
+  ```
+
+
+2017-2-19
+=========
+
+* swig tricks
+
+  - when c++ header use `std::string`, need to include this interface
+
+    ```swig
+    %include "std_string.i"
+    ```
+
+  - rename operator
+
+    ```cpp
+    class Complex {
+    public:
+      Complex();
+      Complex(float r, float i);
+      Complex operator+(const Complex& complx);
+      Complex operator-(const Complex& complx);
+      Complex operator*(const Complex& complx);
+      std::string out() {
+        std::stringstream ss;
+        ss << real_ << "+" << imaginary_ << "i";
+        return ss.str();
+      }
+
+    private:
+      float real_, imaginary_;
+    };
+    ```
+
+    ```swig
+    %rename(__add__) Complex::operator+;
+    %rename(__sub__) Complex::operator-;
+    %rename(__mul__) Complex::operator*;
+    ```
+
+
+2017-2-20
+=========
+
+* swig template
+
+  ```
+  template <typename DType>
+  DType max(DType* a, int n) {
+    assert(n > 0);
+    DType max_val = a[0];
+    for (int i = 1 ; i < n ; ++i) {
+      if (a[i] > max_val) {
+        max_val = a[i];
+      }
+    }
+    return max_val;
+  }
+
+  %template(maxint) max<int>;
+  %template(maxdouble) max<double>;
+  ```
+
+
+2017-2-21
+=========
+
+* swig numpy.i provide interface to numpy array
+
+  - swig file
+
+  ```swig
+  %include "numpy.i"
+  %init %{
+  import_array()
+  %}
+
+  /* input */
+  %apply (float* IN_ARRAY1, int DIM1) {(float* a, int n)};
+  /* input mutable */
+  %apply (float* INPLACE_ARRAY1, int DIM1) {(float* a, int n)};
+  /* output */
+  %apply (float* ARGOUT_ARRAY1, int DIM1) {(float* l, int n)};
+  ```
+
+  - cmake download numpy
+
+  ```cmake
+  if (NOT EXISTS ./numpy.i)
+    message("Downloading numpy.i from github.com...")
+    file(DOWNLOAD
+      https://raw.githubusercontent.com/numpy/numpy/master/tools/swig/numpy.i
+      ./numpy.i EXPECTED_MD5 7ace9cd48149759e03624dae78cf2216 SHOW_PROGRESS)
+  endif ()
+  ```
+
+
+2017-2-22
+=========
+
+* c++ stateful lambda
+
+  - mutable lambda: allows body to modify the parameters captured by copy, and to call their non-const member functions
+
+  ```cpp
+  #include <iostream>
+  #include <utility>
+
+  int main(void) {
+    auto fib = [a = 0, b = 1]() mutable {
+      a = std::exchange(b, b + a);
+      return a;
+    };
+
+    for (int i = 0 ; i < 20 ; ++i) {
+      std::cout << fib() << " ";
+    }
+    std::cout << "\n";
+    return 0;
+  }
+  ```
+
+
+2017-2-23
+=========
+
+* c++ cast operator
+
+  - operator int()/float()/double() is more like a cast operator
+
+  ```cpp
+  class Rectangle {
+   public:
+    Rectangle() : width_(0), height_(0), id_(gen_id()) {}
+    Rectangle(float w, float h) : width_(w), height_(h), id_(gen_id()) {}
+    operator int() {
+      return id_;
+    }
+
+   private:
+    int gen_id() {
+      static int id = 0;
+      return id++;
+    }
+    float width_, height_;
+    int id_;
+  };
+  ```
+
+
+2017-2-24
+=========
+
+* c++ variant
+
+  - for c++14, use boost::variant
+
+  ```cpp
+  #include <boost/variant.hpp>
+  using var = boost::variant<int, float, double>;
+
+  var v = 12, w = 6;
+  try {
+    std::cout << boost::get<int>(v) << std::endl;
+    std::cout << boost::get<double>(w) << std::endl;
+  } catch (boost::bad_get&) {}
+  ```
+
+
+2017-2-25
+=========
+
+* c++17 if constexpr
+
+  ```cpp
+  if constexpr (...)
+  ```
+
+  - Unfortunately, my compiler still not support this
+
+
+* c++ integral constant
+
+  ```cpp
+  template <int I>
+  using IntConstant_ = std::integral_constant<int, I>;
+  template <int I>
+  constexpr IntConstant_<I> IntConstant{};
+
+  int main(void) {
+    auto ten = IntConstant<10>;
+    std::cout << ten << std::endl;
+
+    return 0;
+  }
+  ```
+
+
+2017-2-26
+=========
+
+* c++14 static if implemented by Vittorio Romeo
+
+  ```cpp
+  #ifndef STATIC_IF_H
+  #define STATIC_IF_H
+
+  #include <utility>
+
+  #define FWD(...) std::forward<decltype(__VA_ARGS__)>(__VA_ARGS__)
+
+  template <bool Bool>
+  using bool_ = std::integral_constant<bool, Bool>;
+
+  template <bool Bool>
+  constexpr bool_<Bool> bool_v {};
+
+  template <typename Predicate>
+  auto static_if(Predicate) noexcept;
+
+  namespace sf {
+
+  template <bool PredicateResult>
+  struct static_if_impl;
+
+  template <typename Function>
+  struct static_if_result;
+
+  template <typename Function>
+  auto make_static_if_result(Function&& f) noexcept;
+
+  template <>
+  struct static_if_impl<true> {
+    template <typename Function>
+    auto& else_(Function&&) noexcept {
+      return *this;
+    }
+
+    template <typename Predicate>
+    auto& else_if(Predicate) noexcept {
+      return *this;
+    }
+
+    template <typename Function>
+    auto then(Function&& f) noexcept {
+      return make_static_if_result(FWD(f));
+    }
+  };
+
+  template <>
+  struct static_if_impl<false> {
+    template <typename Function>
+    auto& then(Function&& f) noexcept {
+      return *this;
+    }
+
+    template <typename Function>
+    auto else_(Function&& f) noexcept {
+      return make_static_if_result(FWD(f));
+    }
+
+    template <typename Predicate>
+    auto else_if(Predicate) noexcept {
+      return static_if(Predicate{});
+    }
+
+    template <typename ...T>
+    auto operator()(T&&...) noexcept {}
+  };
+
+  template <typename Function>
+  struct static_if_result : Function {
+    template <typename F>
+    static_if_result(F&& f) noexcept : Function(FWD(f)) {}
+
+    template <typename F>
+    auto& then(F&& f) noexcept {
+      return *this;
+    }
+
+    template <typename Predicate>
+    auto& else_if(Predicate p) noexcept {
+      return *this;
+    }
+
+    template <typename F>
+    auto& else_(F&&) noexcept {
+      return *this;
+    }
+  };
+
+  template <typename Function>
+  auto make_static_if_result(Function&& f) noexcept {
+    return static_if_result<Function>{FWD(f)};
+  }
+
+  } /* end of sf namespace */
+
+  template <typename Predicate>
+  auto static_if(Predicate) noexcept {
+    return sf::static_if_impl<Predicate{}>{};
+  }
+
+  #endif /* end of include guard: STATIC_IF_H */
+  ```
+
+
+
+2017-2-27
+=========
