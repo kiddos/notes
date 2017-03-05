@@ -1751,6 +1751,271 @@
   ```
 
 
-
 2017-2-27
 =========
+
+* emscripten: compile native c++ code into javascript
+
+  - example
+
+    - hello.cc
+
+    ```cpp
+    #include <iostream>
+
+    int main(void) {
+      std::cout << "hello world!\n";
+      return 0;
+    }
+    ```
+
+    run
+
+    ```shell
+    em++ hello.cc
+    nodejs a.out.js
+    ```
+
+
+2017-2-28
+=========
+
+* emscripten: support sdl 1.2
+
+  ```cpp
+  #include <stdio.h>
+  #include <SDL/SDL.h>
+
+  #ifdef __EMSCRIPTEN__
+  #include <emscripten.h>
+  #endif
+
+  extern "C" int main(int argc, char** argv) {
+    printf("hello, world!\n");
+
+    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Surface *screen = SDL_SetVideoMode(256, 256, 32, SDL_SWSURFACE);
+
+  #ifdef TEST_SDL_LOCK_OPTS
+    EM_ASM("SDL.defaults.copyOnLock = false; SDL.defaults.discardOnLock = true; SDL.defaults.opaqueFrontBuffer = false;");
+  #endif
+
+    if (SDL_MUSTLOCK(screen)) SDL_LockSurface(screen);
+    for (int i = 0; i < 256; i++) {
+      for (int j = 0; j < 256; j++) {
+  #ifdef TEST_SDL_LOCK_OPTS
+        // Alpha behaves like in the browser, so write proper opaque pixels.
+        int alpha = 255;
+  #else
+        // To emulate native behavior with blitting to screen, alpha component is ignored. Test that it is so by outputting
+        // data (and testing that it does get discarded)
+        int alpha = (i+j) % 255;
+  #endif
+        *((Uint32*)screen->pixels + i * 256 + j) = SDL_MapRGBA(screen->format, i, j, 255-i, alpha);
+      }
+    }
+    if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
+    SDL_Flip(screen);
+
+    printf("you should see a smoothly-colored square - no sharp lines but the square borders!\n");
+    printf("and here is some text that should be HTML-friendly: amp: |&| double-quote: |\"| quote: |'| less-than, greater-than, html-like tags: |<cheez></cheez>|\nanother line.\n");
+
+    SDL_Quit();
+
+    return 0;
+  }
+  ```
+
+  run
+
+  ```shell
+  em++ hello.cc -o hello.html
+  google-chrome hello.html
+  ```
+
+
+2017-3-1
+========
+
+* gdb ui mode
+
+  ```shell
+  gdb --tui
+  ```
+
+  or toggle using `Ctrl-X Ctrl-A`
+
+* python script for gdb
+
+  ```python
+  import gdb
+
+  while True:
+    print('-' * 40)
+    gdb.execute('run')
+    e = gdb.parse_and_eval('$_exitcode')
+    print('$_exitcode: %s' % e)
+    if e != 0:
+      break
+  ```
+
+* strace: find system trace system call and signals
+
+  ```shell
+  strace ./executable
+  ```
+
+* valgrind
+
+  ```shell
+  valgrind ./executable
+  ```
+
+* lldb and neovim plugin
+
+  `https://github.com/critiqjo/lldb.nvim`
+
+
+2017-3-2
+========
+
+* gtest assertion
+
+  ```
+  #include <gtest/gtest.h>
+
+  testing::AssertionResult SimpleTest(int a) {
+    if (a == 0) {
+      return testing::AssertionFailure();
+    } else {
+      return testing::AssertionSuccess();
+    }
+  }
+
+  TEST(SimpleTest, SimpleCase) {
+    // EXPECT_TRUE(SimpleTest(0));
+    EXPECT_FALSE(SimpleTest(0));
+    EXPECT_TRUE(SimpleTest(1));
+  }
+  ```
+
+
+2017-3-3
+========
+
+* Fast Inverse Square root
+
+  ```cpp
+  float InverseSqrt(float x) {
+    float xhalf = 0.5f * x;
+    int i = *(int*) &x;
+    i = 0x5f3759df - (i >> 1);
+    x = *(float*)&i;
+    x = x * (1.5f - xhalf * x * x);
+    return x;
+  }
+  ```
+
+
+2017-3-4
+========
+
+* c++ print special unicode
+
+  ```cpp
+  #include <iostream>
+  #include <string>
+  #include <locale>
+  #include <codecvt>
+
+  using std::u16string;
+
+  int main(void) {
+    u16string s = u"\u2603";
+    std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> cvt;
+    std::cout << cvt.to_bytes(s) << "\xE2\x98\x83" << '\n';
+    return 0;
+  }
+  ```
+
+
+2017-3-5
+========
+
+* flask http 206 response
+
+  ```
+  range_header = request.headers.get('Range', None)
+  if not range_header:
+    return send_file(file_path)
+
+  total_size = os.path.getsize(file_path)
+  match = re.search('(\d+)-(\d*)', range_header)
+  g = match.groups()
+  byte1 = 0
+  byte2 = None
+  if g[0]: byte1 = int(g[0])
+  if g[1]: byte2 = int(g[1])
+
+  length = total_size - byte1
+  if byte2 is not None:
+    length = byte2 - byte1
+
+  data = None
+  with open(file_path, 'rb') as f:
+    f.seek(byte1)
+    data = f.read(length)
+  res = Response(data, 206, mimetype='video/mp4', direct_passthrough=True)
+  res.headers.add('Content-Range', 'bytes %d-%d/%d' %
+      (byte1, byte1 + length - 1, total_size))
+  return res
+  ```
+
+2017-3-6
+========
+
+* guideline support library GSL
+
+  - static check null pointer
+
+    ```cpp
+    #include <iostream>
+    #include <gsl/gsl>
+
+    int main(void) {
+      // gsl::not_null<int*> p = nullptr;  // does not compile
+      gsl::not_null<int*> p = new int{3};
+      std::cout << *p << '\n';
+      return 0;
+    }
+    ```
+
+  - ownership of pointer
+
+    ```cpp
+    #include <iostream>
+    #include <gsl/gsl>
+
+    using namespace gsl;
+
+    void del(int* p) {
+      delete p;
+    }
+
+    void create() {
+      owner<int*> p = new int{10};
+      int* p2 = new int{30};
+      del(p);
+      del(p2);
+    }
+
+    int main(void) {
+      create();
+      return 0;
+    }
+    ```
+
+
+2017-3-7
+========
+
