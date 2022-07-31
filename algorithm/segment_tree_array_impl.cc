@@ -4,55 +4,50 @@ using namespace std;
 
 class SegmentTree {
  public:
-  SegmentTree(vector<int>& nums) : n(nums.size()), tree_(nums.size() * 4) {
-    function<void(int, int, int)> build = [&](int i, int tl, int tr) {
+  SegmentTree(vector<int>& nums) : sums_(nums.size() * 4) {
+    function<void(int, int, int)> build_tree = [&](int i, int tl, int tr) {
       if (tl == tr) {
-        tree_[i] = nums[tl];
-      } else {
-        int tm = tl + (tr - tl) / 2;
-        build(i * 2 + 1, tl, tm);
-        build(i * 2 + 2, tm + 1, tr);
-        tree_[i] = tree_[i * 2 + 1] + tree_[i * 2 + 2];
+        sums_[i] = nums[tl];
+        return;
       }
+      int tm = tl + (tr - tl) / 2;
+      build_tree(i * 2 + 1, tl, tm);
+      build_tree(i * 2 + 2, tm + 1, tr);
+
+      update(i);
     };
 
-    build(0, 0, nums.size() - 1);
+    build_tree(0, 0, nums.size() - 1);
   }
 
-  void update(int index, int val) { update_tree(0, 0, n - 1, index, val); }
+  int query(int i, int tl, int tr, int ql, int qr) {
+    if (ql > qr) return 0;
+    if (tr < ql || tl > qr) return 0;
+    if (tl >= ql && tr <= qr) return sums_[i];
 
-  void update_tree(int i, int tl, int tr, int index, int val) {
+    int tm = tl + (tr - tl) / 2;
+    return query(i * 2 + 1, tl, tm, ql, min(tm, qr)) +
+           query(i * 2 + 2, tm + 1, tr, max(tm, ql), qr);
+  }
+
+  void update(int i, int tl, int tr, int index, int val) {
     if (tl == tr) {
-      tree_[i] = val;
-    } else {
-      int tm = tl + (tr - tl) / 2;
-      if (index <= tm) {
-        update_tree(i * 2 + 1, tl, tm, index, val);
-      } else {
-        update_tree(i * 2 + 2, tm + 1, tr, index, val);
-      }
-      tree_[i] = tree_[i * 2 + 1] + tree_[i * 2 + 2];
-    }
-  }
-
-  int query(int left, int right) {
-    return query_tree(0, 0, n - 1, left, right);
-  }
-
-  int query_tree(int i, int tl, int tr, int l, int r) {
-    if (l > r) return 0;
-    if (tl == l && tr == r) {
-      return tree_[i];
+      sums_[i] = val;
+      return;
     }
 
     int tm = tl + (tr - tl) / 2;
-    return query_tree(i * 2 + 1, tl, tm, l, min(r, tm)) +
-           query_tree(i * 2 + 2, tm + 1, tr, max(l, tm + 1), r);
+    if (index <= tm)
+      update(i * 2 + 1, tl, tm, index, val);
+    else
+      update(i * 2 + 2, tm + 1, tr, index, val);
+    update(i);
   }
 
  private:
-  int n;
-  vector<int> tree_;
+  vector<int> sums_;
+
+  inline void update(int i) { sums_[i] = sums_[i * 2 + 1] + sums_[i * 2 + 2]; }
 };
 
 int main(void) {
@@ -61,15 +56,16 @@ int main(void) {
 
   vector<int> data = {7, 2, 7, 2, 0};
   SegmentTree tree(data);
-  tree.update(4, 6);
-  tree.update(0, 2);
-  tree.update(0, 9);
-  assert(tree.query(4, 4) == 6);
-  tree.update(3, 8);
-  assert(tree.query(0, 4) == 32);
-  tree.update(4, 1);
-  assert(tree.query(0, 3) == 26);
-  assert(tree.query(0, 4) == 27);
-  tree.update(0, 4);
+  const int n = data.size();
+  tree.update(0, 0, n - 1, 4, 6);
+  tree.update(0, 0, n - 1, 0, 2);
+  tree.update(0, 0, n - 1, 0, 9);
+  assert(tree.query(0, 0, n - 1, 4, 4) == 6);
+  tree.update(0, 0, n - 1, 3, 8);
+  assert(tree.query(0, 0, n - 1, 0, 4) == 32);
+  tree.update(0, 0, n - 1, 4, 1);
+  assert(tree.query(0, 0, n - 1, 0, 3) == 26);
+  assert(tree.query(0, 0, n - 1, 0, 4) == 27);
+  tree.update(0, 0, n - 1, 0, 4);
   return 0;
 }
