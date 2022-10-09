@@ -4,7 +4,11 @@ using namespace std;
 
 class SegmentTree {
  public:
-  SegmentTree(vector<int>& nums) : sums_(nums.size() * 4) {
+  SegmentTree(vector<int>& nums) {
+    int n = nums.size();
+    int x = (int)(ceil(log2(n)));
+    int max_size = 2 * (int)pow(2, x) - 1;
+    sums_ = vector<int>(max_size);
     function<void(int, int, int)> build_tree = [&](int i, int tl, int tr) {
       if (tl == tr) {
         sums_[i] = nums[tl];
@@ -17,7 +21,7 @@ class SegmentTree {
       update(i);
     };
 
-    build_tree(0, 0, nums.size() - 1);
+    build_tree(0, 0, n - 1);
   }
 
   int query(int i, int tl, int tr, int ql, int qr) {
