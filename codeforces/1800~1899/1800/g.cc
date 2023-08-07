@@ -2,69 +2,59 @@
 
 using namespace std;
 
-using ll = long long;
-
-constexpr int MAX_SIZE = 200000;
-constexpr ll MOD = 1e13 + 1337;
-
-vector<ll> F(MAX_SIZE+1);
-
-void precompute() {
-  mt19937 gen(chrono::system_clock::now().time_since_epoch().count());
-
-  for (int i = 0; i <= MAX_SIZE; ++i) {
-    F[i] = gen();
-  }
-}
 
 void solve() {
   int n = 0;
   cin >> n;
-
   vector<vector<int>> adj(n+1);
-  for (int i = 1; i < n; ++i) {
+  for (int i= 1; i < n; ++i) {
     int u = 0, v = 0;
     cin >> u >> v;
     adj[u].push_back(v);
     adj[v].push_back(u);
   }
 
-  vector<ll> hashes(n+1);
-  vector<int> sizes(n+1);
-  vector<bool> is_symmetric(n+1);
-  function<void(int,int)> dfs = [&](int node, int parent) {
-    map<ll, int> hash_codes;
-    hashes[node] = 66666661;
-    for (int child : adj[node]) if (child != parent) {
-      dfs(child, node);
-      sizes[node] += sizes[child];
-      hashes[node] += (F[sizes[child]] ^ hashes[child]) % MOD;
-
-      // cout << "node=" << child << ", hash=" << hashes[child] << endl;
-      
-      if (hash_codes.count(hashes[child])) {
-        hash_codes.erase(hashes[child]);
-      } else {
-        hash_codes[hashes[child]] = child;
-      }
+  vector<vector<int>> memo(n+1);
+  function<vector<int>&(int,int)> dfs = [&](int node, int parent) -> vector<int>& {
+    if (memo[node].size() > 0) {
+      return memo[node];
     }
 
-    if (hash_codes.size() > 1) {
-      is_symmetric[node] = false;
-    } else {
-      if (hash_codes.size() == 0) {
-        is_symmetric[node] = true;
-      } else {
-        int child = hash_codes.begin()->second;
-        is_symmetric[node] = is_symmetric[child];
+    vector<int> ans;
+    for (int next_node : adj[node]) if (next_node != parent) {
+      vector<int> result = dfs(next_node, node);
+      for (int len : result) {
+        ans.push_back(len+1);
       }
     }
-    sizes[node]++;
+    if (ans.empty()) {
+      return memo[node] = {1};
+    }
+    sort(ans.begin(), ans.end());
+    return memo[node] = ans;
   };
 
-  dfs(1, -1);
+  function<bool(int,int)> is_symmetric = [&](int node, int parent) -> bool {
+    map<vector<int>, int> children;
+    for (int child : adj[node]) if (child != parent) {
+      vector<int>& path_lens = dfs(child, node);
 
-  if (is_symmetric[1]) {
+      if (children.count(path_lens)) {
+        children.erase(path_lens);
+      } else {
+        children[path_lens] = child;
+      }
+    }
+    if (children.size() <= 1) {
+      if (children.size() == 0) return true;
+      return is_symmetric(children.begin()->second, node);
+    } else {
+      return false;
+    }
+  };
+
+  bool ans = is_symmetric(1, -1);
+  if (ans) {
     cout << "YES" << endl;
   } else {
     cout << "NO" << endl;
@@ -74,8 +64,6 @@ void solve() {
 int main(void) {
   ios::sync_with_stdio(false);
   cin.tie(0);
-
-  precompute();
 
   int T = 0;
   cin >> T;
