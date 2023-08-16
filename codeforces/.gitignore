@@ -2,4 +2,4 @@
 !*/
 !*.cc
 !.gitignore
-
+!*.rs
