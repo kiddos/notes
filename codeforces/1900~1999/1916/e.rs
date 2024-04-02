@@ -18,6 +18,7 @@ fn solve() {
     let stdout = stdout();
     let mut writer = BufWriter::new(stdout.lock());
     let n = read_int::<usize>();
+
 }
 
 fn main() {
