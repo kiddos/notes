@@ -5,26 +5,25 @@ using namespace std;
 using i64 = long long;
 
 void solve() {
-  int n = 0;
-  cin >> n;
   string s;
   cin >> s;
-
-  int m = n / 2;
-  for (int i = 0; i < m; ++i) {
+  int n = s.length();
+  int zeros = 0;
+  int ans = 0;
+  for (int i = 0; i < n; ++i) {
     if (s[i] == '0') {
-      cout << i+1 << " " << n << " " << i+2 << " " << n << endl;
-      return;
+      zeros++;
+    } else {
+      if (zeros) {
+        ans++;
+        zeros = 0;
+      }
     }
   }
-  for (int i = m; i < n; ++i) {
-    if (s[i] == '0') {
-      cout << 1 << " " << i+1 << " " << 1 << " " << i << endl;
-      return;
-    }
-  }
+  if (zeros) ans++;
+  ans = min(ans, 2);
+  cout << ans << endl;
 }
-
 
 int main(void) {
   ios::sync_with_stdio(false);
