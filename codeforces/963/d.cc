@@ -84,11 +84,11 @@ vector<int> solve(string s, vector<int>& k, vector<string>& m) {
 
   vector<int> ans(n);
   for (int i = 0; i < n; ++i) {
-    if (indices[i].size() < k[i]) {
+    if ((int) indices[i].size() < k[i]) {
       ans[i] = -1;
     } else {
       int best = numeric_limits<int>::max();
-      for (int j = 0; j <= indices[i].size() - k[i]; ++j) {
+      for (int j = 0; j <= (int) indices[i].size() - k[i]; ++j) {
         int len = indices[i][j + k[i] - 1] - indices[i][j] + m[i].length();
         best = min(best, len);
       }
