@@ -3,3 +3,4 @@
 !*.cc
 !.gitignore
 !*.rs
+!*.py
