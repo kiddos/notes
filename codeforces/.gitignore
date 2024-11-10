@@ -4,3 +4,5 @@
 !.gitignore
 !*.rs
 !*.py
+!*.kt
+!*.java
