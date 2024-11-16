@@ -12,30 +12,24 @@ void solve() {
     cin >> a[i];
   }
 
-  constexpr int MAX_A = 110;
-  vector<int> counts(MAX_A+1);
+  int max_a = *max_element(a.begin(), a.end());
+  vector<int> counts(max_a+1);
   for (int i = 0; i < n; ++i) {
     counts[a[i]]++;
   }
 
-  int ans = 0;
-  for (int i = 1; i <= MAX_A; ++i) {
-    vector<int> c = counts;
-    int len = 0;
-    int j = i;
-    while (true) {
-      if (c[j-1] > 0) {
-        c[j-1]--;
-      } else if (c[j] > 0) {
-        c[j]--;
-      } else {
-        break;
+  vector<int> dp(max_a+3);
+  for (int d = max_a; d >= 1; --d) {
+    if (counts[d]) {
+      dp[d] = max(dp[d], dp[d+1] + 1);
+      dp[d+1] = max(dp[d+2] + 1, dp[d+1]);
+      if (counts[d] > 1) {
+        dp[d] = max(dp[d], dp[d+2] + 2);
       }
-      j++;
-      len++;
     }
-    ans = max(ans, len);
   }
+
+  int ans = *max_element(dp.begin(), dp.end());
   cout << ans << endl;
 }
 
