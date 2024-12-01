@@ -17,7 +17,7 @@ fn read_vec<T: FromStr>() -> Vec<T> where <T as FromStr>::Err: Debug {
     s.split(" ").map(|x| x.trim().parse().expect("invalid input")).collect()
 }
 
-const MOD: i32 = 998244353;
+const MOD: i64 = 998244353;
 
 fn solve() {
     let stdout = stdout();
@@ -38,7 +38,7 @@ fn solve() {
         }
     }
 
-    let mut dp = vec![0; n];
+    let mut dp: Vec<i64> = vec![0; n];
     let mut count = vec![0; max_a + 1];
     dp[0] = 1;
     for &d in divs[a[0]].iter() {
@@ -47,7 +47,8 @@ fn solve() {
 
     for i in 1..n {
         for &d in divs[a[i]].iter() {
-            dp[i] += (c[d] * count[d]) % MOD;
+            let add = (c[d] * count[d]) % MOD;
+            dp[i] += (add + MOD) % MOD;
             dp[i] %= MOD;
         }
 
