@@ -5,12 +5,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(BUILD_SHARED_LIBS ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
+set(FETCHCONTENT_QUIET FALSE)
 include(FetchContent)
 
-enable_testing()
-
-set(FETCHCONTENT_QUIET FALSE)
+set(TBB_TEST OFF CACHE BOOL "Disable TBB tests" FORCE)
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Disable benchmark tests" FORCE)
 FetchContent_Declare(
     googletest
     GIT_REPOSITORY https://github.com/google/googletest.git
@@ -31,6 +30,8 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(googletest benchmark oneTBB)
+
+enable_testing()
 
 add_library(lib lib.cc)
 target_link_libraries(lib TBB::tbb)
