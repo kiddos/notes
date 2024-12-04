@@ -9,7 +9,6 @@ set(FETCHCONTENT_QUIET FALSE)
 
 include(FetchContent)
 
-# Fetch glog from GitHub
 FetchContent_Declare(
     glog
     GIT_REPOSITORY https://github.com/google/glog.git
