@@ -10,10 +10,10 @@ set(FETCHCONTENT_QUIET FALSE)
 include(FetchContent)
 
 FetchContent_Declare(
-    glog
-    GIT_REPOSITORY https://github.com/google/glog.git
-    GIT_TAG        v0.7.1
-    GIT_SHALLOW    TRUE
+  glog
+  GIT_REPOSITORY https://github.com/google/glog.git
+  GIT_TAG        v0.7.1
+  GIT_SHALLOW    TRUE
 )
 
 FetchContent_MakeAvailable(glog)

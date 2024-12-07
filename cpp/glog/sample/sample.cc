@@ -1,8 +1,9 @@
-#include <filesystem>
 #include <glog/logging.h>
+
+#include <filesystem>
 #include <iostream>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   google::InitGoogleLogging(argv[0]);
   const std::string log_dir = LOG_DIR;
   FLAGS_log_dir = LOG_DIR;

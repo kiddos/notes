@@ -9,10 +9,10 @@ set(FETCHCONTENT_QUIET FALSE)
 include(FetchContent)
 
 FetchContent_Declare(
-    leveldb
-    GIT_REPOSITORY https://github.com/google/leveldb
-    GIT_TAG        main
-    GIT_SHALLOW    TRUE
+  leveldb
+  GIT_REPOSITORY https://github.com/google/leveldb
+  GIT_TAG        main
+  GIT_SHALLOW    TRUE
 )
 FetchContent_MakeAvailable(leveldb)
 

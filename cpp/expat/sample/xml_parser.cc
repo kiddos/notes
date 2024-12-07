@@ -1,11 +1,11 @@
+#include "xml_parser.h"
+
 #include <cstring>
 #include <iostream>
 
-#include "xml_parser.h"
-
-static void XMLCALL start_element(void *user_data, const XML_Char *name,
-                                  const XML_Char **attrs) {
-  ParserContext* context = (ParserContext*) user_data;
+static void XMLCALL start_element(void* user_data, const XML_Char* name,
+                                  const XML_Char** attrs) {
+  ParserContext* context = (ParserContext*)user_data;
 
   for (int i = 0; i < context->depth; ++i) {
     std::cout << "  ";
@@ -19,7 +19,7 @@ static void XMLCALL start_element(void *user_data, const XML_Char *name,
   context->depth++;
 }
 
-static void XMLCALL end_element(void *user_data, const XML_Char *name) {
+static void XMLCALL end_element(void* user_data, const XML_Char* name) {
   ParserContext* context = (ParserContext*)user_data;
   (void)name;
   context->depth--;
@@ -34,7 +34,7 @@ XMLParser::XMLParser() : parser_(XML_ParserCreate(nullptr)) {
 
 XMLParser::~XMLParser() { XML_ParserFree(parser_); }
 
-void XMLParser::parse(const std::string &xml) {
+void XMLParser::parse(const std::string& xml) {
   size_t offset = 0;
   bool done = false;
   do {

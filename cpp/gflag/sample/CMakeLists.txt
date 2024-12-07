@@ -10,10 +10,10 @@ set(FETCHCONTENT_QUIET FALSE)
 include(FetchContent)
 
 FetchContent_Declare(
-    gflags
-    GIT_REPOSITORY https://github.com/gflags/gflags.git
-    GIT_TAG        v2.2.2
-    GIT_SHALLOW    TRUE
+  gflags
+  GIT_REPOSITORY https://github.com/gflags/gflags.git
+  GIT_TAG        v2.2.2
+  GIT_SHALLOW    TRUE
 )
 
 FetchContent_MakeAvailable(gflags)

@@ -10,17 +10,18 @@ struct Employee {
   int id;
   std::string first_name, last_name, email;
 
-  Employee(int id, char *first_name, char *last_name, char *email)
+  Employee(int id, char* first_name, char* last_name, char* email)
       : id(id), first_name(first_name), last_name(last_name), email(email) {}
 };
 
 int main(void) {
   db2::DB2Connection conn;
-  std::string connection_str = "DRIVER={IBM DB2 ODBC DRIVER};"
-                               "HOSTNAME=localhost;"
-                               "DATABASE=TESTDB;"
-                               "UID=db2inst1;"
-                               "PWD=a123456;";
+  std::string connection_str =
+      "DRIVER={IBM DB2 ODBC DRIVER};"
+      "HOSTNAME=localhost;"
+      "DATABASE=TESTDB;"
+      "UID=db2inst1;"
+      "PWD=a123456;";
   conn.Connect(connection_str);
 
   std::string query = "SELECT * FROM EMPLOYEES";
@@ -37,7 +38,7 @@ int main(void) {
                nullptr);
     SQLGetData(stmt->handle(), 4, SQL_C_CHAR, email, sizeof(email), nullptr);
     users.push_back(
-        Employee((int)id, (char *)first_name, (char *)last_name, (char *)email));
+        Employee((int)id, (char*)first_name, (char*)last_name, (char*)email));
   }
   for (Employee u : users) {
     std::cout << "id=" << u.id << ", " << u.first_name << " " << u.last_name

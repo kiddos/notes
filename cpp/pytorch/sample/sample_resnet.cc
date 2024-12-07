@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 
-torch::Tensor load_image(const std::string &image_path) {
+torch::Tensor load_image(const std::string& image_path) {
   int input_width = 0, input_height = 0, input_channels = 0;
   auto image_data = stbi_load(image_path.c_str(), &input_width, &input_height,
                               &input_channels, 0);
@@ -43,7 +43,7 @@ int main(void) {
   torch::jit::script::Module module;
   try {
     module = torch::jit::load("traced_resnet_model.pt");
-  } catch (const c10::Error &e) {
+  } catch (const c10::Error& e) {
     std::cerr << "error loading the model\n";
     return -1;
   }

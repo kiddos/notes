@@ -1,6 +1,7 @@
-#include "xml_parser.h"
 #include <fstream>
 #include <string>
+
+#include "xml_parser.h"
 
 int main(void) {
   XMLParser parser;

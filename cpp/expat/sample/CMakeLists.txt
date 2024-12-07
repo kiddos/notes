@@ -9,10 +9,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(FetchContent)
 
 FetchContent_Declare(
-    expat
-    GIT_REPOSITORY https://github.com/libexpat/libexpat/
-    GIT_TAG R_2_6_4
-    SOURCE_SUBDIR expat/
+  expat
+  GIT_REPOSITORY https://github.com/libexpat/libexpat/
+  GIT_TAG R_2_6_4
+  SOURCE_SUBDIR expat/
 )
 
 FetchContent_MakeAvailable(expat)

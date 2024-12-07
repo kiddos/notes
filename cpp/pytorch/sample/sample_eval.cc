@@ -6,8 +6,8 @@
 int main() {
   auto model = std::make_shared<Net>();
   try {
-    torch::load(model, "net.pt"); // Use torch::load for a regular model
-  } catch (const c10::Error &e) {
+    torch::load(model, "net.pt");  // Use torch::load for a regular model
+  } catch (const c10::Error& e) {
     std::cerr << "Error loading the model.\n";
     return -1;
   }
@@ -24,7 +24,7 @@ int main() {
   int total = 0;
 
   model->eval();
-  for (auto &batch : *test_loader) {
+  for (auto& batch : *test_loader) {
     auto images = batch.data;
     auto labels = batch.target;
     torch::Tensor output = model->forward({images});

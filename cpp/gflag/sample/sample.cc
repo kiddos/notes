@@ -1,4 +1,5 @@
 #include <gflags/gflags.h>
+
 #include <iostream>
 
 // Define command-line flags
@@ -7,7 +8,7 @@ DEFINE_string(operation, "add",
 DEFINE_double(operand1, 0.0, "First operand");
 DEFINE_double(operand2, 0.0, "Second operand");
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
   // Perform the requested operation

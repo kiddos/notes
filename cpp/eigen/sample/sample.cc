@@ -1,6 +1,6 @@
 #include <Eigen/Dense>
-#include <iostream>
 #include <chrono>
+#include <iostream>
 
 int main(void) {
   constexpr int SIZE = 1024;
@@ -12,6 +12,7 @@ int main(void) {
   auto end = std::chrono::high_resolution_clock::now();
 
   std::chrono::duration<double> elapsed = end - start;
-  std::cout << "Time taken for multiplication: " << elapsed.count() << " seconds" << std::endl;
+  std::cout << "Time taken for multiplication: " << elapsed.count()
+            << " seconds" << std::endl;
   return 0;
 }

@@ -34,10 +34,10 @@ set(BUILD_opencv_highgui ON CACHE BOOL "Enable highgui module" FORCE)
 
 # opencv
 FetchContent_Declare(
-    opencv
-    GIT_REPOSITORY https://github.com/opencv/opencv.git
-    GIT_TAG        4.10.0
-    GIT_SHALLOW    TRUE
+  opencv
+  GIT_REPOSITORY https://github.com/opencv/opencv.git
+  GIT_TAG        4.10.0
+  GIT_SHALLOW    TRUE
 )
 
 FetchContent_MakeAvailable(opencv)

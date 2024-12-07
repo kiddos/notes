@@ -13,7 +13,7 @@ int64_t sumto(int x) {
 int64_t sumto_opt(int x) {
   return oneapi::tbb::parallel_reduce(
       oneapi::tbb::blocked_range<int>(1, x), 0LL,
-      [](oneapi::tbb::blocked_range<int> const &r, int64_t init) -> int {
+      [](oneapi::tbb::blocked_range<int> const& r, int64_t init) -> int {
         for (int v = r.begin(); v != r.end(); v++) {
           init += v;
         }

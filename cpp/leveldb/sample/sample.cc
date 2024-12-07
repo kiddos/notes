@@ -1,8 +1,9 @@
-#include <iostream>
 #include <leveldb/db.h>
 
+#include <iostream>
+
 int main(void) {
-  leveldb::DB *db;
+  leveldb::DB* db;
   leveldb::Options options;
   options.create_if_missing = true;
 
@@ -14,7 +15,8 @@ int main(void) {
   }
 
   for (int i = 0; i < 100; ++i) {
-    db->Put(leveldb::WriteOptions(), "key" + std::to_string(i), "value" + std::to_string(i));
+    db->Put(leveldb::WriteOptions(), "key" + std::to_string(i),
+            "value" + std::to_string(i));
   }
 
   std::string value;

@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include <cpr/cpr.h>
+
+#include <iostream>
 
 int main(void) {
   using namespace cpr;

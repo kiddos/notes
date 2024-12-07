@@ -2,7 +2,7 @@
 
 #include "lib.h"
 
-static void BM_Addition(benchmark::State &state) {
+static void BM_Addition(benchmark::State& state) {
   for (auto _ : state) {
     // Code to benchmark
     int64_t result = sumto(1000000);
@@ -10,7 +10,7 @@ static void BM_Addition(benchmark::State &state) {
   }
 }
 
-static void BM_Addition_Parallel(benchmark::State &state) {
+static void BM_Addition_Parallel(benchmark::State& state) {
   for (auto _ : state) {
     // Code to benchmark
     int64_t result = sumto_opt(1000000);

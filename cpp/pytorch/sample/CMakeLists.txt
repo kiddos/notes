@@ -14,8 +14,8 @@ set(TORCH_VERSION "2.5.1") # Update this as needed
 set(FETCHCONTENT_QUIET FALSE)
 # Fetch PyTorch
 FetchContent_Declare(
-    libtorch
-    URL https://download.pytorch.org/libtorch/cu121/libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}%2Bcu121.zip
+  libtorch
+  URL https://download.pytorch.org/libtorch/cu121/libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}%2Bcu121.zip
 )
 
 FetchContent_MakeAvailable(libtorch)
@@ -24,9 +24,9 @@ find_package(Torch REQUIRED)
 
 # stb
 FetchContent_Declare(
-    stb
-    GIT_REPOSITORY https://github.com/nothings/stb
-    GIT_TAG master
+  stb
+  GIT_REPOSITORY https://github.com/nothings/stb
+  GIT_TAG master
 )
 FetchContent_MakeAvailable(stb)
 include_directories(${stb_SOURCE_DIR})

@@ -11,9 +11,9 @@ include(FetchContent)
 find_package(Threads REQUIRED)
 
 FetchContent_Declare(
-    sqlite
-    URL       "https://www.sqlite.org/2024/sqlite-amalgamation-3470000.zip"
-    URL_HASH  SHA256=2842fddbb1cc33f66c7da998a57535f14a6bfee159676a07bb4bf3e59375d93e
+  sqlite
+  URL       "https://www.sqlite.org/2024/sqlite-amalgamation-3470000.zip"
+  URL_HASH  SHA256=2842fddbb1cc33f66c7da998a57535f14a6bfee159676a07bb4bf3e59375d93e
 )
 FetchContent_MakeAvailable(sqlite)
 

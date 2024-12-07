@@ -1,11 +1,12 @@
-#include <iostream>
-#include <vector>
 #include <sqlite3.h>
+
+#include <iostream>
 #include <string>
+#include <vector>
 
 class SQLite {
-public:
-  SQLite(const std::string &path) : db_(nullptr), err_msg_(nullptr) {
+ public:
+  SQLite(const std::string& path) : db_(nullptr), err_msg_(nullptr) {
     if (sqlite3_open(path.c_str(), &db_) != SQLITE_OK) {
       std::cerr << "Cannot open sqlite db: " << path << ", "
                 << sqlite3_errmsg(db_) << std::endl;
@@ -20,16 +21,17 @@ public:
     }
   }
 
-  int exec(const std::string &sql) {
-    char *err_msg = nullptr;
+  int exec(const std::string& sql) {
+    char* err_msg = nullptr;
     return sqlite3_exec(db_, sql.c_str(), 0, 0, &err_msg);
   }
 
   void add_log(const std::string& log_message) {
     const std::string sql = "INSERT INTO log(log) VALUES(?)";
-    sqlite3_stmt *stmt = nullptr;
+    sqlite3_stmt* stmt = nullptr;
     if (sqlite3_prepare_v2(db_, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-      std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db_) << std::endl;
+      std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db_)
+                << std::endl;
       return;
     }
 
@@ -43,9 +45,10 @@ public:
 
   void add_logs(const std::vector<std::string>& messages) {
     const std::string sql = "INSERT INTO log(log) VALUES(?)";
-    sqlite3_stmt *stmt = nullptr;
+    sqlite3_stmt* stmt = nullptr;
     if (sqlite3_prepare_v2(db_, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-      std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db_) << std::endl;
+      std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db_)
+                << std::endl;
       return;
     }
 
@@ -64,20 +67,21 @@ public:
     sqlite3_finalize(stmt);
   }
 
-private:
-  sqlite3 *db_;
-  char *err_msg_;
+ private:
+  sqlite3* db_;
+  char* err_msg_;
 };
 
 int main(void) {
   const std::string db_path = "test.db";
 
   SQLite db(db_path);
-  std::string sql = "CREATE TABLE IF NOT EXISTS log("
-    "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-    "log TEXT NOT NULL,"
-    "t DATETIME DEFAULT CURRENT_TIMESTAMP"
-    ")";
+  std::string sql =
+      "CREATE TABLE IF NOT EXISTS log("
+      "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+      "log TEXT NOT NULL,"
+      "t DATETIME DEFAULT CURRENT_TIMESTAMP"
+      ")";
   db.exec(sql);
 
   // for (int i = 0; i < 100; ++i) {

@@ -11,22 +11,22 @@ include(FetchContent)
 set(TBB_TEST OFF CACHE BOOL "Disable TBB tests" FORCE)
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Disable benchmark tests" FORCE)
 FetchContent_Declare(
-    googletest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG        v1.15.2
-    GIT_SHALLOW    TRUE
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG        v1.15.2
+  GIT_SHALLOW    TRUE
 )
 FetchContent_Declare(
-    benchmark
-    GIT_REPOSITORY https://github.com/google/benchmark.git
-    GIT_TAG        v1.9.1
-    GIT_SHALLOW    TRUE
+  benchmark
+  GIT_REPOSITORY https://github.com/google/benchmark.git
+  GIT_TAG        v1.9.1
+  GIT_SHALLOW    TRUE
 )
 FetchContent_Declare(
-    oneTBB
-    GIT_REPOSITORY https://github.com/uxlfoundation/oneTBB
-    GIT_TAG        v2022.0.0
-    GIT_SHALLOW    TRUE
+  oneTBB
+  GIT_REPOSITORY https://github.com/uxlfoundation/oneTBB
+  GIT_TAG        v2022.0.0
+  GIT_SHALLOW    TRUE
 )
 
 FetchContent_MakeAvailable(googletest benchmark oneTBB)

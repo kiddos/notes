@@ -1,7 +1,9 @@
 #include "request.h"
+
 #include <iostream>
 
-static size_t write_callback(void* contents, size_t size, size_t nmemb, std::string* output) {
+static size_t write_callback(void* contents, size_t size, size_t nmemb,
+                             std::string* output) {
   size_t totalSize = size * nmemb;
   output->append((char*)contents, totalSize);
   return totalSize;
@@ -30,14 +32,15 @@ std::string Request::get(const std::string& url) {
     if (res == CURLE_OK) {
       return response_;
     }
-    std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+    std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res)
+              << std::endl;
   }
   return "";
 }
 
-std::string Request::post(const std::string& url,
-                          const std::string& data,
-                          const std::unordered_map<std::string, std::string>& headers) {
+std::string Request::post(
+    const std::string& url, const std::string& data,
+    const std::unordered_map<std::string, std::string>& headers) {
   if (curl_) {
     curl_easy_setopt(curl_, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl_, CURLOPT_POST, 1L);
@@ -53,7 +56,8 @@ std::string Request::post(const std::string& url,
     if (res == CURLE_OK) {
       return response_;
     }
-    std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+    std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res)
+              << std::endl;
   }
   return "";
 }

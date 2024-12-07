@@ -10,10 +10,10 @@ set(FETCHCONTENT_QUIET FALSE)
 include(FetchContent)
 
 FetchContent_Declare(
-    curl
-    GIT_REPOSITORY https://github.com/curl/curl.git
-    GIT_TAG        curl-8_11_0
-    GIT_SHALLOW    TRUE
+  curl
+  GIT_REPOSITORY https://github.com/curl/curl.git
+  GIT_TAG        curl-8_11_0
+  GIT_SHALLOW    TRUE
 )
 
 FetchContent_MakeAvailable(curl)

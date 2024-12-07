@@ -1,5 +1,6 @@
-#include "expat.h"
 #include <string>
+
+#include "expat.h"
 
 struct ParserContext {
   int depth;
@@ -10,7 +11,7 @@ class XMLParser {
   XMLParser();
   ~XMLParser();
 
-  void parse(const std::string &xml);
+  void parse(const std::string& xml);
 
  private:
   XML_Parser parser_;

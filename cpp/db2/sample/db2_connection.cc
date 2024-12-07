@@ -5,7 +5,7 @@
 namespace db2 {
 
 bool check_ret_code(SQLRETURN code, SQLHANDLE handle, SQLSMALLINT handle_type,
-                    const char *msg) {
+                    const char* msg) {
   if (code != SQL_SUCCESS && code != SQL_SUCCESS_WITH_INFO) {
     SQLCHAR sql_state[6], error_msg[1024];
     SQLINTEGER native_error;
@@ -37,7 +37,7 @@ bool DB2Connection::setup() {
     return false;
   }
 
-  code = SQLSetEnvAttr(env_, SQL_ATTR_ODBC_VERSION, (void *)SQL_OV_ODBC3, 0);
+  code = SQLSetEnvAttr(env_, SQL_ATTR_ODBC_VERSION, (void*)SQL_OV_ODBC3, 0);
   if (!check_ret_code(code, env_, SQL_HANDLE_ENV,
                       "Setting Environment Attributes")) {
     return false;
@@ -52,7 +52,7 @@ bool DB2Connection::setup() {
 }
 
 bool DB2Connection::Connect(std::string connection_str) {
-  auto code = SQLDriverConnect(dbc_, NULL, (SQLCHAR *)connection_str.c_str(),
+  auto code = SQLDriverConnect(dbc_, NULL, (SQLCHAR*)connection_str.c_str(),
                                SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
   if (!check_ret_code(code, dbc_, SQL_HANDLE_DBC, "Connecting to Database")) {
     return false;
@@ -69,7 +69,7 @@ std::unique_ptr<DB2Statement> DB2Connection::Execute(std::string sql) {
     return nullptr;
   }
 
-  code = SQLExecDirect(stmt, (SQLCHAR *)sql.c_str(), SQL_NTS);
+  code = SQLExecDirect(stmt, (SQLCHAR*)sql.c_str(), SQL_NTS);
   if (!check_ret_code(code, stmt, SQL_HANDLE_STMT, "Executing Query")) {
     return nullptr;
   }
@@ -78,12 +78,8 @@ std::unique_ptr<DB2Statement> DB2Connection::Execute(std::string sql) {
 
 DB2Statement::DB2Statement(SQLHSTMT stmt) : stmt_(stmt) {}
 
-DB2Statement::~DB2Statement() {
-  SQLFreeHandle(SQL_HANDLE_STMT, stmt_);
-}
+DB2Statement::~DB2Statement() { SQLFreeHandle(SQL_HANDLE_STMT, stmt_); }
 
-bool DB2Statement::next() {
-  return SQLFetch(stmt_) == SQL_SUCCESS;
-}
+bool DB2Statement::next() { return SQLFetch(stmt_) == SQL_SUCCESS; }
 
-} // namespace db2
+}  // namespace db2

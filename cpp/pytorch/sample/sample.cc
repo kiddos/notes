@@ -1,8 +1,9 @@
-#include <torch/torch.h>
 #include <torch/script.h>
-#include "net.h"
+#include <torch/torch.h>
 
 #include <iostream>
+
+#include "net.h"
 
 int main() {
   auto net = std::make_shared<Net>();
@@ -11,19 +12,19 @@ int main() {
       torch::data::transforms::Stack<>());
   auto mode = torch::data::datasets::MNIST::Mode::kTest;
   auto test_dataset = torch::data::datasets::MNIST("./data", mode)
-    .map(torch::data::transforms::Stack<>());
+                          .map(torch::data::transforms::Stack<>());
 
   int batch_size = 256;
   auto train_dl = torch::data::make_data_loader(train_dataset, batch_size);
   auto test_dl = torch::data::make_data_loader(test_dataset, batch_size);
 
-
   double lr = 1e-3;
-  torch::optim::Adam optimizer(net->parameters(), torch::optim::AdamOptions(lr));
+  torch::optim::Adam optimizer(net->parameters(),
+                               torch::optim::AdamOptions(lr));
 
   for (size_t epoch = 1; epoch <= 30; ++epoch) {
     size_t batch_index = 0;
-    for (auto &batch : *train_dl) {
+    for (auto& batch : *train_dl) {
       optimizer.zero_grad();
       torch::Tensor prediction = net->forward(batch.data);
       torch::Tensor loss = torch::nll_loss(prediction, batch.target);

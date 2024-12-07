@@ -1,7 +1,7 @@
 #include <sqlcli1.h>
 
-#include <string>
 #include <memory>
+#include <string>
 
 namespace db2 {
 
@@ -31,5 +31,5 @@ class DB2Connection {
 
   bool setup();
 };
-  
-}
+
+}  // namespace db2
