@@ -1,0 +1,4 @@
+build
+natives
+.gradle
+compile_commands.json
