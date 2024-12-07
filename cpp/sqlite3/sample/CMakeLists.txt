@@ -22,5 +22,5 @@ include_directories(${sqlite_SOURCE_DIR})
 add_library(sqlite3 STATIC ${sqlite_SOURCE_DIR}/sqlite3.c)
 target_link_libraries(sqlite3 Threads::Threads dl)
 
-add_executable(sample sample.cc)
+add_executable(sample sample.cc sqlite.cc)
 target_link_libraries(sample PRIVATE sqlite3)
