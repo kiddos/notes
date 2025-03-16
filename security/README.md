@@ -1,32 +1,18 @@
-# kics
+# Security Tools
 
-- build from source
-
-```sh
-git clone https://github.com/Checkmarx/kics.git
-cd kics
-go mod vendor
-make build
-```
-
-- run
-
-```sh
-./bin/kics scan -p '<path-of-your-project-to-scan>' --report-formats json -o ./results
-```
-
-# DependencyCheck
-
-- download
-
-```sh
-VERSION=$(curl -s https://jeremylong.github.io/DependencyCheck/current.txt)
-curl -Ls "https://github.com/jeremylong/DependencyCheck/releases/download/v$VERSION/dependency-check-$VERSION-release.zip" --output dependency-check.zip
-unzip dependency-check.zip
-```
-
-- run
-
-```
-./bin/dependency-check.sh --out . --scan .
-```
+- [kics](./kics.md)
+- [Depedency Check](./DependencyCheck.md)
+- [semgrep](https://github.com/semgrep/semgrep)
+- [shellcheck](https://github.com/koalaman/shellcheck)
+- [checkov](https://github.com/bridgecrewio/checkov)
+- [pmd](https://github.com/pmd/pmd)
+- [cppcheck](https://github.com/danmar/cppcheck)
+- [hadolint](https://github.com/hadolint/hadolint)
+- [golangci-lint](https://golangci-lint.run/)
+- [detekt](https://github.com/detekt/detekt)
+- [markdownlint](https://github.com/DavidAnson/markdownlint)
+- [phpstan](https://github.com/phpstan/phpstan)
+- [ruff](https://github.com/astral-sh/ruff)
+- [robocop](https://github.com/rubocop/rubocop)
+- [yamllint](https://github.com/adrienverge/yamllint)
+- [SwiftLint](https://github.com/realm/SwiftLint)
