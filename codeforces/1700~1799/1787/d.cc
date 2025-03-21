@@ -85,8 +85,16 @@ void solve() {
     current = current + a[current];
   }
 
+  if (state[1] == 1) {
+    for (int i = 1; i <= n; ++i) {
+      if (!visited[i]) {
+        stuck += 2*n+1;
+      }
+    }
+  }
+
   // cout << "stuck=" << stuck << endl;
-  i64 total = n * (2 * n +1);
+  i64 total = (i64)n * (2 * n +1);
   i64 ans = total - stuck;
   cout << ans << endl;
 }
