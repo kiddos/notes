@@ -2,35 +2,41 @@
 
 using namespace std;
 
-typedef long long ll;
+using i64 = long long;
 
-class SegmentTree {
+template <typename T, T DEFAULT>
+class SegmentTreeImpl {
  public:
-  SegmentTree(vector<int> &bits) {
-    int n = bits.size();
-    int x = ceil(log2(n)) + 1;
-    int size = pow(2, x) - 1;
-    data_ = vector<int>(size);
-    lazy_ = vector<int>(size);
-
-    function<void(int, int, int)> build = [&](int i, int l, int r) {
-      if (l > r)
-        return;
-      if (l == r) {
-        data_[i] = bits[l];
-        return;
-      }
-
-      int m = l + (r - l) / 2;
-      build(i * 2 + 1, l, m);
-      build(i * 2 + 2, m + 1, r);
-      data_[i] = data_[i * 2 + 1] + data_[i * 2 + 2];
-    };
-
-    build(0, 0, n - 1);
+  SegmentTreeImpl(int n) : n(n) {
+    int x = (int)(ceil(log2(n)));
+    int max_size = 2 * (int)pow(2, x) - 1;
+    data_ = vector<T>(max_size);
   }
 
-  void update(int i, int tl, int tr, int l, int r, int val) {
+  SegmentTreeImpl(vector<T>& data) {
+    n = data.size();
+    int x = ceil(log2(n)) + 1;
+    int size = pow(2, x) - 1;
+    data_ = vector<T>(size);
+    lazy_ = vector<T>(size);
+
+    build(data, 0, 0, n - 1);
+  }
+
+  void build(vector<T>& data, int i, int l, int r) {
+    if (l > r) return;
+    if (l == r) {
+      data_[i] = data[l];
+      return;
+    }
+
+    int m = l + (r - l) / 2;
+    build(data, i * 2 + 1, l, m);
+    build(data, i * 2 + 2, m + 1, r);
+    data_[i] = data_[i * 2 + 1] + data_[i * 2 + 2];
+  }
+
+  void update(int i, int tl, int tr, int l, int r, T val) {
     push(i, tl, tr);
 
     if (tr < l || tl > r) {
@@ -53,11 +59,15 @@ class SegmentTree {
     data_[i] = data_[i * 2 + 1] + data_[i * 2 + 2];
   }
 
-  int query(int i, int tl, int tr, int ql, int qr) {
+  void update(int l, int r, T val) {
+    update(0, 0, n-1, l, r, val);
+  }
+
+  T query(int i, int tl, int tr, int ql, int qr) {
     push(i, tl, tr);
 
     if (tr < ql || tl > qr) {
-      return 0;
+      return DEFAULT;
     }
 
     if (tl >= ql && tr <= qr) {
@@ -65,41 +75,53 @@ class SegmentTree {
     }
 
     int tm = (tl + tr) / 2;
-    return query(i * 2 + 1, tl, tm, ql, qr) +
-           query(i * 2 + 2, tm + 1, tr, ql, qr);
+    T left = query(i * 2 + 1, tl, tm, ql, qr);
+    T right = query(i * 2 + 2, tm + 1, tr, ql, qr);
+    return left + right;
+  }
+
+  T query(int ql, int qr) {
+    return query(0, 0, n-1, ql, qr);
   }
 
  private:
-  vector<int> data_;
-  vector<int> lazy_;
+  int n;
+  vector<T> data_;
+  vector<T> lazy_;
 
   void push(int i, int tl, int tr) {
     if (lazy_[i]) {
       data_[i] += (tr - tl + 1) * lazy_[i];
       if (tl != tr) {
-        lazy_[i * 2 + 1] = lazy_[i];
-        lazy_[i * 2 + 2] = lazy_[i];
+        lazy_[i * 2 + 1] += lazy_[i];
+        lazy_[i * 2 + 2] += lazy_[i];
       }
       lazy_[i] = 0;
     }
   }
 };
 
+using SegmentTree = SegmentTreeImpl<i64, 0>;
+
 int main(void) {
   ios::sync_with_stdio(false);
   cin.tie(0);
 
-  vector<int> a = {1, 4, 6, 2, 3, 9, 10, 3, 6};
+  vector<i64> a = {1, 4, 6, 2, 3, 9, 10, 3, 6};
   int n = a.size();
   SegmentTree tree(a);
 
-  for (int i = 0; i < n;++i) cout << tree.query(0, 0, n-1, i, i) << " ";
-  cout << endl;
+  for (int i = 0; i < n; ++i) {
+    assert(a[i] == tree.query(i, i));
+  }
 
-  tree.update(0, 0, n-1, 3, 6, 6);
-
-  for (int i = 0; i < n;++i) cout << tree.query(0, 0, n-1, i, i) << " ";
-  cout << endl;
+  for (int i = 3; i <= 6; ++i) {
+    a[i] += 6;
+  }
+  tree.update(3, 6, 6);
+  for (int i = 0; i < n; ++i) {
+    assert(a[i] == tree.query(i, i));
+  }
 
   return 0;
 }
