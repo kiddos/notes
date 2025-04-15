@@ -2,7 +2,9 @@
 
 using namespace std;
 
-template <typename T, typename F>
+using i64 = long long;
+
+template <typename T, typename F, T DEFAULT>
 class SegmentTreeImpl {
  public:
   SegmentTreeImpl(int n) : n(n) {
@@ -16,7 +18,7 @@ class SegmentTreeImpl {
     int x = (int)(ceil(log2(n)));
     int max_size = 2 * (int)pow(2, x) - 1;
     data_ = vector<T>(max_size);
-    build_tree(data, 0, 0, n-1);
+    build_tree(data, 0, 0, n - 1);
   }
 
   void build_tree(vector<T>& data, int i, int tl, int tr) {
@@ -31,8 +33,8 @@ class SegmentTreeImpl {
   }
 
   T query(int i, int tl, int tr, int ql, int qr) {
-    if (ql > qr) return T();
-    if (tr < ql || tl > qr) return T();
+    if (ql > qr) return DEFAULT;
+    if (tr < ql || tl > qr) return DEFAULT;
     if (tl >= ql && tr <= qr) return data_[i];
 
     int tm = tl + (tr - tl) / 2;
@@ -67,13 +69,27 @@ class SegmentTreeImpl {
   inline T merge(T x, T y) { return F{}(x, y); }
 };
 
-using SegmentTree = SegmentTreeImpl<int, std::plus<int>>;
+template <typename T>
+struct MinFunctor {
+  T operator()(T a, T b) const { return std::min(a, b); }
+};
+
+template <typename T>
+struct MaxFunctor {
+  T operator()(T a, T b) const { return std::max(a, b); }
+};
+
+using MinSegmentTree =
+    SegmentTreeImpl<i64, MinFunctor<i64>, numeric_limits<i64>::max()>;
+using MaxSegmentTree =
+    SegmentTreeImpl<i64, MaxFunctor<i64>, numeric_limits<i64>::min()>;
+using SegmentTree = SegmentTreeImpl<i64, std::plus<i64>, 0>;
 
 int main(void) {
   ios::sync_with_stdio(false);
   cin.tie(0);
 
-  vector<int> data = {7, 2, 7, 2, 0};
+  vector<i64> data = {7, 2, 7, 2, 0};
   SegmentTree tree(data);
   const int n = data.size();
   tree.update(0, 0, n - 1, 4, 6);
