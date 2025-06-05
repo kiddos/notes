@@ -8,13 +8,13 @@ template <typename T, typename F, T DEFAULT>
 class SegmentTreeImpl {
  public:
   SegmentTreeImpl(int n) : n(n) {
-    int x = (int)(ceil(log2(n)));
-    int max_size = 2 * (int)pow(2, x) - 1;
+    int x = (int)(ceil(log2(n+1)));
+    int max_size = 2 * (int)pow(2, x);
     data_ = vector<T>(max_size);
   }
 
   SegmentTreeImpl(vector<T>& data) {
-    int n = data.size();
+    n = data.size();
     int x = (int)(ceil(log2(n)));
     int max_size = 2 * (int)pow(2, x) - 1;
     data_ = vector<T>(max_size);
