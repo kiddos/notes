@@ -5,19 +5,19 @@ using namespace std;
 using i64 = long long;
 
 template <int NODE_SIZE>
-struct TrieNodeImpl {
-  TrieNodeImpl* children[NODE_SIZE];
+struct GenericTrieNode {
+  GenericTrieNode* children[NODE_SIZE];
   int count;
 
-  TrieNodeImpl() : children{nullptr}, count(0) {}
-  ~TrieNodeImpl() {
+  GenericTrieNode() : children{nullptr}, count(0) {}
+  ~GenericTrieNode() {
     for (int i = 0; i < NODE_SIZE; ++i) {
       delete children[i];
     }
   }
 };
 
-using TrieNode = TrieNodeImpl<26>;
+using TrieNode = GenericTrieNode<26>;
 
 void insert(TrieNode* root, const string& s) {
   TrieNode* it = root;
