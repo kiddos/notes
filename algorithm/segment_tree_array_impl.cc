@@ -4,16 +4,18 @@ using namespace std;
 
 using i64 = long long;
 
-template <typename T, typename F, T DEFAULT>
-class SegmentTreeImpl {
+enum class UpdateType { Assign, Add };
+
+template <typename T, typename F, T DEFAULT, UpdateType UPDATE_TYPE>
+class GenericSegmentTree {
  public:
-  SegmentTreeImpl(int n) : n(n) {
-    int x = (int)(ceil(log2(n+1)));
+  GenericSegmentTree(int n) : n(n) {
+    int x = (int)(ceil(log2(n + 1)));
     int max_size = 2 * (int)pow(2, x);
     data_ = vector<T>(max_size);
   }
 
-  SegmentTreeImpl(vector<T>& data) {
+  GenericSegmentTree(vector<T>& data) {
     n = data.size();
     int x = (int)(ceil(log2(n)));
     int max_size = 2 * (int)pow(2, x) - 1;
@@ -47,7 +49,11 @@ class SegmentTreeImpl {
 
   void update(int i, int tl, int tr, int index, const T& val) {
     if (tl == tr) {
-      data_[i] = val;
+      if constexpr (UPDATE_TYPE == UpdateType::Assign) {
+        data_[i] = val;
+      } else if constexpr (UPDATE_TYPE == UpdateType::Add) {
+        data_[i] += val;
+      }
       return;
     }
 
@@ -80,10 +86,12 @@ struct MaxFunctor {
 };
 
 using MinSegmentTree =
-    SegmentTreeImpl<i64, MinFunctor<i64>, numeric_limits<i64>::max()>;
+    GenericSegmentTree<i64, MinFunctor<i64>, numeric_limits<i64>::max(),
+                       UpdateType::Assign>;
 using MaxSegmentTree =
-    SegmentTreeImpl<i64, MaxFunctor<i64>, numeric_limits<i64>::min()>;
-using SegmentTree = SegmentTreeImpl<i64, std::plus<i64>, 0>;
+    GenericSegmentTree<i64, MaxFunctor<i64>, numeric_limits<i64>::min(),
+                       UpdateType::Assign>;
+using SegmentTree = GenericSegmentTree<i64, std::plus<i64>, 0, UpdateType::Add>;
 
 int main(void) {
   ios::sync_with_stdio(false);
