@@ -2,28 +2,33 @@
 
 using namespace std;
 
-vector<int> eratothenes(int n) {
-  vector<bool> is_prime(n+1, true);
-  for (long i = 2; i*i <= n; ++i) {
+constexpr int MAX_N = 6e6;
+
+vector<int> primes;
+
+void precompute() {
+  vector<bool> is_prime(MAX_N+1, true);
+  for (int i = 2; i <= MAX_N; ++i) {
     if (is_prime[i]) {
-      for (long j = 0; j <= n && i*i+j*i <= n; ++j)  {
-        is_prime[i*i+j*i] = false;
+      for (int j = i+i; j <= MAX_N; j += i) {
+        is_prime[j] = false;
       }
     }
   }
-  vector<int> ans;
-  for (int i = 2; i <= n; ++i) {
-    if (is_prime[i]) ans.push_back(i);
+
+  for (int i = 2; i <= MAX_N; ++i) {
+    if (is_prime[i]) {
+      primes.push_back(i);
+    }
   }
-  return ans;
 }
 
 int main(void) {
   ios::sync_with_stdio(false);
   cin.tie(0);
 
-  const int n = 5e5;
-  vector<int> primes = eratothenes(n);
+  precompute();
+
   for (int p : primes) {
     cout << p << " ";
   }
