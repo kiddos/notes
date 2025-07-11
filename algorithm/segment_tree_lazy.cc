@@ -4,17 +4,17 @@ using namespace std;
 
 using i64 = long long;
 
-template <typename T, T DEFAULT>
-class SegmentTreeImpl {
+template <typename T, typename M, typename L, T IDENTITY>
+class LazySegmentTree {
  public:
-  SegmentTreeImpl(int n) : n(n) {
+  LazySegmentTree(int n) : n(n) {
     int x = (int)(ceil(log2(n)));
     int max_size = 2 * (int)pow(2, x) - 1;
     data_ = vector<T>(max_size);
     lazy_ = vector<T>(max_size);
   }
 
-  SegmentTreeImpl(vector<T>& data) {
+  LazySegmentTree(vector<T>& data) {
     n = data.size();
     int x = ceil(log2(n)) + 1;
     int size = pow(2, x) - 1;
@@ -34,7 +34,7 @@ class SegmentTreeImpl {
     int m = l + (r - l) / 2;
     build(data, i * 2 + 1, l, m);
     build(data, i * 2 + 2, m + 1, r);
-    data_[i] = data_[i * 2 + 1] + data_[i * 2 + 2];
+    data_[i] = M{}(data_[i * 2 + 1], data_[i * 2 + 2]);
   }
 
   void update(int i, int tl, int tr, int l, int r, T val) {
@@ -45,10 +45,11 @@ class SegmentTreeImpl {
     }
 
     if (tl >= l && tr <= r) {
+      L{}.apply_to_data_node(data_[i], tl, tr, val);
       data_[i] += (tr - tl + 1) * val;
       if (tl != tr) {
-        lazy_[i * 2 + 1] += val;
-        lazy_[i * 2 + 2] += val;
+        L{}.propagate(lazy_[i * 2 + 1], val);
+        L{}.propagate(lazy_[i * 2 + 2], val);
       }
       lazy_[i] = 0;
       return;
@@ -57,18 +58,16 @@ class SegmentTreeImpl {
     int tm = (tl + tr) / 2;
     update(i * 2 + 1, tl, tm, l, r, val);
     update(i * 2 + 2, tm + 1, tr, l, r, val);
-    data_[i] = data_[i * 2 + 1] + data_[i * 2 + 2];
+    data_[i] = M{}(data_[i * 2 + 1], data_[i * 2 + 2]);
   }
 
-  void update(int l, int r, T val) {
-    update(0, 0, n-1, l, r, val);
-  }
+  void update(int l, int r, T val) { update(0, 0, n - 1, l, r, val); }
 
   T query(int i, int tl, int tr, int ql, int qr) {
     push(i, tl, tr);
 
     if (tr < ql || tl > qr) {
-      return DEFAULT;
+      return IDENTITY;
     }
 
     if (tl >= ql && tr <= qr) {
@@ -78,12 +77,10 @@ class SegmentTreeImpl {
     int tm = (tl + tr) / 2;
     T left = query(i * 2 + 1, tl, tm, ql, qr);
     T right = query(i * 2 + 2, tm + 1, tr, ql, qr);
-    return left + right;
+    return M{}(left, right);
   }
 
-  T query(int ql, int qr) {
-    return query(0, 0, n-1, ql, qr);
-  }
+  T query(int ql, int qr) { return query(0, 0, n - 1, ql, qr); }
 
  private:
   int n;
@@ -92,17 +89,81 @@ class SegmentTreeImpl {
 
   void push(int i, int tl, int tr) {
     if (lazy_[i]) {
-      data_[i] += (tr - tl + 1) * lazy_[i];
+      L{}.apply_to_data_node(data_[i], tl, tr, lazy_[i]);
       if (tl != tr) {
-        lazy_[i * 2 + 1] += lazy_[i];
-        lazy_[i * 2 + 2] += lazy_[i];
+        L{}.propagate(lazy_[i * 2 + 1], lazy_[i]);
+        L{}.propagate(lazy_[i * 2 + 2], lazy_[i]);
       }
       lazy_[i] = 0;
     }
   }
 };
 
-using SegmentTree = SegmentTreeImpl<i64, 0>;
+struct SumMergePolicy {
+  template <typename T>
+  T operator()(const T& a, const T& b) const {
+    return a + b;
+  }
+};
+
+struct MaxMergePolicy {
+  template <typename T>
+  T operator()(const T& a, const T& b) const {
+    return std::max(a, b);
+  }
+};
+
+struct MinMergePolicy {
+  template <typename T>
+  T operator()(const T& a, const T& b) const {
+    return std::min(a, b);
+  }
+};
+
+struct LazyAddPolicy {
+  template <typename T>
+  void apply_to_data_node(T& node_val, int tl, int tr,
+                          const T& lazy_val) const {
+    node_val += lazy_val * (tr - tl + 1);
+  }
+
+  template <typename T>
+  void propagate(T& child_lazy_val, const T& parent_lazy_val) const {
+    child_lazy_val += parent_lazy_val;
+  }
+};
+
+struct LazyMaxPolicy {
+  template <typename T>
+  void apply_to_data_node(T& node_val, [[maybe_unused]] int tl,
+                          [[maybe_unused]] int tr, const T& lazy_val) const {
+    node_val = std::max(node_val, lazy_val);
+  }
+
+  template <typename T>
+  void propagate(T& child_lazy_val, const T& parent_lazy_val) const {
+    child_lazy_val = std::max(child_lazy_val, parent_lazy_val);
+  }
+};
+
+struct LazyMinPolicy {
+  template <typename T>
+  void apply_to_data_node(T& node_val, [[maybe_unused]] int tl,
+                          [[maybe_unused]] int tr, const T& lazy_val) const {
+    node_val = std::min(node_val, lazy_val);
+  }
+
+  template <typename T>
+  void propagate(T& child_lazy_val, const T& parent_lazy_val) const {
+    child_lazy_val = std::min(child_lazy_val, parent_lazy_val);
+  }
+};
+
+using SegmentTree = LazySegmentTree<i64, SumMergePolicy, LazyAddPolicy, 0>;
+using MaxSegmentTree = LazySegmentTree<i64, MaxMergePolicy, LazyMaxPolicy,
+                                       std::numeric_limits<i64>::min()>;
+using MinSegmentTree = LazySegmentTree<i64, MinMergePolicy, LazyMinPolicy,
+                                       std::numeric_limits<i64>::max()>;
 
 int main(void) {
   ios::sync_with_stdio(false);
