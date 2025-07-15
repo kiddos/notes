@@ -46,7 +46,6 @@ class LazySegmentTree {
 
     if (tl >= l && tr <= r) {
       L{}.apply_to_data_node(data_[i], tl, tr, val);
-      data_[i] += (tr - tl + 1) * val;
       if (tl != tr) {
         L{}.propagate(lazy_[i * 2 + 1], val);
         L{}.propagate(lazy_[i * 2 + 2], val);
