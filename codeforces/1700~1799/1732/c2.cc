@@ -29,36 +29,106 @@ void solve() {
     return (sum[r] - sum[l-1]) - (x[r] ^ x[l-1]);
   };
 
-  for (int i = 0; i < q; ++i) {
-    i64 max_f = f(L[i], R[i]);
-    if (max_f == 0) {
-      cout << L[i] << " " << L[i] << endl;
-      continue;
+  vector<int> next_none_zero(n+1, n+1);
+  vector<int> st;
+  for (int i = 1; i <= n; ++i) {
+    if (a[i]) {
+      while (!st.empty()) {
+        next_none_zero[st.back()] = i;
+        st.pop_back();
+      }
+    }
+    st.push_back(i);
+  }
+
+  st.clear();
+  vector<int> prev_none_zero(n+1, 0);
+  for (int i = n; i >= 1; --i) {
+    if (a[i]) {
+      while (!st.empty()) {
+        prev_none_zero[st.back()] = i;
+        st.pop_back();
+      }
+    }
+    st.push_back(i);
+  }
+
+  auto find_right = [&](int left, int right, i64 val) -> int {
+    int l = left, r = right;
+    int idx = r;
+    while (l <= r) {
+      int mid = l + (r-l) / 2;
+      i64 new_val = f(left, mid);
+      if (new_val >= val) {
+        r = mid-1;
+        idx = mid;
+      } else {
+        l = mid+1;
+      }
+    }
+    return idx;
+  };
+
+  auto find_left = [&](int left, int right, i64 val) -> int {
+    int l = left, r = right;
+    int idx = l;
+    while (l <= r) {
+      int mid = l + (r-l) / 2;
+      i64 new_val = f(mid, right);
+      if (new_val >= val) {
+        l = mid+1;
+        idx = mid;
+      } else {
+        r = mid-1;
+      }
+    }
+    return idx;
+  };
+
+  auto query = [&](int left, int right) -> pair<int,int> {
+    // cout << "query: " << left << ", " << right << endl;
+    pair<int,int> ans = {left, right};
+    i64 best = f(left, right);
+    int l = left;
+    for (int k = 0; k <= 30; ++k) {
+      i64 new_val = f(l, right);
+      int new_right = find_right(l, right, new_val);
+      // cout << l << "~" << new_right << ":" << new_val << endl;
+      if (new_val >= best && new_right - l < ans.second - ans.first) {
+        best = new_val;
+        ans = {l, new_right};
+      }
+
+      int next_l = next_none_zero[l];
+      if (next_l > right) {
+        break;
+      }
+      l = next_l;
     }
 
-    pair<int,int> ans = {L[i], R[i]};
-    int best = f(L[i], R[i]);
-    for (int j = L[i]; j <= min(L[i] + 31, R[i]); ++j) {
-      int l = j, r = R[i];
-      int idx = -1;
-      while (l <= r) {
-        int mid = l + (r-l) / 2;
-        int f2 = f(j, mid);
-        if (f2 == best) {
-          idx = mid;
-          r = mid-1;
-        } else {
-          l = mid+1;
-        }
+    int r = right;
+    for (int k = 0; k <= 30; ++k) {
+      i64 new_val = f(left, r);
+      int new_left = find_left(left, r, new_val);
+      // cout << new_left << "~" << r << ":" << new_val << endl;
+      if (new_val >= best && r - new_left < ans.second - ans.first) {
+        best = new_val;
+        ans = {new_left, r};
       }
-      if (idx >= 0) {
-        int len = idx-j+1;
-        if (len < ans.second-ans.first+1) {
-          ans = {j, idx};
-        }
+
+      int prev_r = prev_none_zero[r];
+      if (prev_r < left) {
+        break;
       }
+      r = prev_r;
     }
-    cout << ans.first << " " << ans.second << endl;
+    // cout << "best=" << best << endl;
+    return ans;
+  };
+
+  for (int i = 0; i < q; ++i) {
+    auto [l, r] = query(L[i], R[i]);
+    cout << l << " " << r << endl;
   }
 }
 
