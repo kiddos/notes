@@ -93,6 +93,31 @@ using MaxSegmentTree =
                        UpdateType::Assign>;
 using SegmentTree = GenericSegmentTree<i64, std::plus<i64>, 0, UpdateType::Add>;
 
+struct Node {
+  i64 sum;
+  i64 prefix_sum, suffix_sum;
+  i64 max_val;
+
+  constexpr Node(i64 x = 0)
+      : sum(x), prefix_sum(x), suffix_sum(x), max_val(x) {}
+  constexpr Node(i64 x, i64 p, i64 s, i64 m)
+      : sum(x), prefix_sum(p), suffix_sum(s), max_val(m) {}
+};
+
+struct Merge {
+  Node operator()(const Node& lhs, const Node& rhs) {
+    i64 total = lhs.sum + rhs.sum;
+    i64 prefix = max(lhs.prefix_sum, lhs.sum + rhs.prefix_sum);
+    i64 suffix = max(rhs.suffix_sum, rhs.sum + lhs.suffix_sum);
+    i64 max_val = max({lhs.suffix_sum + rhs.prefix_sum, lhs.max_val, rhs.max_val});
+    return Node(total, prefix, suffix, max_val);
+  }
+};
+
+constexpr Node NODE_DEFAULT(0, -1e9, -1e9, numeric_limits<i64>::min());
+using NodeSegmentTree =
+    GenericSegmentTree<Node, Merge, NODE_DEFAULT, UpdateType::Assign>;
+
 int main(void) {
   ios::sync_with_stdio(false);
   cin.tie(0);
@@ -110,5 +135,7 @@ int main(void) {
   assert(tree.query(0, 0, n - 1, 0, 3) == 26);
   assert(tree.query(0, 0, n - 1, 0, 4) == 27);
   tree.update(0, 0, n - 1, 0, 4);
+
+  NodeSegmentTree tree2(n);
   return 0;
 }
