@@ -24,18 +24,19 @@ ExternalProject_Add(openssl_external_project
   SOURCE_DIR "${openssl_SOURCE_DIR}"
   BINARY_DIR "${OPENSSL_BUILD_DIR}"
   CONFIGURE_COMMAND perl "${openssl_SOURCE_DIR}/Configure" -static -no-docs --prefix=${OPENSSL_INSTALL_PREFIX}
-  BUILD_COMMAND make -j8
-  INSTALL_COMMAND make install
+  BUILD_COMMAND $(MAKE)
+  INSTALL_COMMAND $(MAKE) install
   BUILD_BYPRODUCTS
       "${OPENSSL_INSTALL_PREFIX}/lib64/libssl.a"
       "${OPENSSL_INSTALL_PREFIX}/lib64/libcrypto.a"
+  CLEAN_COMMAND ${CMAKE_COMMAND} -E remove_directory "${OPENSSL_BUILD_DIR}"
 )
 
 add_executable(sample sample.cc)
 target_link_libraries(sample PRIVATE
   "${OPENSSL_INSTALL_PREFIX}/lib64/libssl.a"
   "${OPENSSL_INSTALL_PREFIX}/lib64/libcrypto.a"
-  dl
+  ${CMAKE_DL_LIBS}
 )
 
 # find_package(OpenSSL REQUIRED)
