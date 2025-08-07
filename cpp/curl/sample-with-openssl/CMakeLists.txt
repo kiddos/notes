@@ -66,7 +66,7 @@ set(OPENSSL_INCLUDE_DIR "${OPENSSL_INSTALL_PREFIX}/include")
 set(OPENSSL_SSL_LIB "${OPENSSL_INSTALL_PREFIX}/lib64/libssl.a")
 set(OPENSSL_CRYPTO_LIB "${OPENSSL_INSTALL_PREFIX}/lib64/libcrypto.a")
 
-add_executable(sample sample.cc request.cc)
+add_executable(sample sample.cc)
 find_package(Threads REQUIRED)
 # target_link_libraries(sample PRIVATE libcurl)
 target_include_directories(sample PRIVATE
