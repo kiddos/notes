@@ -1,0 +1,50 @@
+esphome:
+  name: bedroom
+
+esp32:
+  board: denky32
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: "my password"
+
+ota:
+  - platform: esphome
+    password: "my password"
+
+wifi:
+  ssid: "my ssid"
+  password: "my password"
+
+captive_portal:
+    
+
+sensor:
+  - platform: dht
+    pin: GPIO23
+    model: DHT11
+    temperature:
+      name: "Bedroom Temperature"
+      filters:
+        - offset: -2.3
+    humidity:
+      name: "Bedroom Humidity"
+      filters:
+        - offset: 1.0
+    update_interval: 20s
+
+web_server:
+  port: 80
+
+light:
+  - platform: esp32_rmt_led_strip
+    rgb_order: RGB
+    pin: GPIO22
+    num_leds: 30
+    chipset: ws2812
+    name: "Monitor RGB"
