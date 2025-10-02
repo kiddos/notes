@@ -38,3 +38,7 @@ target_link_libraries(regex_sample PRIVATE Boost::regex)
 # atomic
 add_executable(atomic_sample atomic_sample.cc)
 target_link_libraries(atomic_sample PRIVATE Boost::atomic Boost::thread)
+
+# uuid
+add_executable(uuid_sample uuid_sample.cc)
+target_link_libraries(uuid_sample PRIVATE Boost::uuid)
