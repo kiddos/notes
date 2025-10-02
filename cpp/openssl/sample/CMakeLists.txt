@@ -13,7 +13,7 @@ include(ExternalProject)
 FetchContent_Declare(
   openssl
   GIT_REPOSITORY https://github.com/openssl/openssl
-  GIT_TAG        openssl-3.5.1
+  GIT_TAG        openssl-3.6.0
   GIT_SHALLOW    TRUE
 )
 FetchContent_MakeAvailable(openssl)
@@ -33,12 +33,16 @@ ExternalProject_Add(openssl_external_project
 )
 
 add_executable(sample sample.cc)
+add_dependencies(sample openssl_external_project)
 target_link_libraries(sample PRIVATE
   "${OPENSSL_INSTALL_PREFIX}/lib64/libssl.a"
   "${OPENSSL_INSTALL_PREFIX}/lib64/libcrypto.a"
   ${CMAKE_DL_LIBS}
 )
 
+
+
+# or find local OpenSSL
 # find_package(OpenSSL REQUIRED)
 # message(STATUS "Found OpenSSL ${OPENSSL_VERSION}")  
 # message(STATUS "OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")  
@@ -46,5 +50,3 @@ target_link_libraries(sample PRIVATE
 # target_link_libraries(sample PRIVATE
 #   OpenSSL::SSL OpenSSL::Crypto dl
 # )
-
-add_dependencies(sample openssl_external_project)
