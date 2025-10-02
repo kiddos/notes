@@ -34,3 +34,7 @@ target_link_libraries(echo_sample PRIVATE Boost::asio Boost::thread)
 # regex
 add_executable(regex_sample regex_sample.cc)
 target_link_libraries(regex_sample PRIVATE Boost::regex)
+
+# atomic
+add_executable(atomic_sample atomic_sample.cc)
+target_link_libraries(atomic_sample PRIVATE Boost::atomic Boost::thread)
