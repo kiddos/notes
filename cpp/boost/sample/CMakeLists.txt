@@ -42,3 +42,7 @@ target_link_libraries(atomic_sample PRIVATE Boost::atomic Boost::thread)
 # uuid
 add_executable(uuid_sample uuid_sample.cc)
 target_link_libraries(uuid_sample PRIVATE Boost::uuid)
+
+# string
+add_executable(string_sample string_sample.cc)
+target_link_libraries(string_sample PRIVATE Boost::algorithm)
