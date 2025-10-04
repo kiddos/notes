@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(qt-qml-sample LANGUAGES CXX)
+project(sample-qt-qml LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
@@ -18,11 +18,7 @@ message(STATUS "Qt6 Core include directories: ${QT_CORE_INCLUDE_DIRS}")
 
 set(APP_SOURCES sample.cc qml.qrc)
 
-add_executable(sample ${APP_SOURCES})
-
-target_include_directories(sample PRIVATE
-  /opt/Qt/6.9.1/gcc_64/include
-)
+qt_add_executable(sample ${APP_SOURCES})
 
 target_link_libraries(sample PRIVATE
   Qt6::Core

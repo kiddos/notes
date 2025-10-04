@@ -4,11 +4,12 @@
 
 int main(int argc, char* argv[]) {
   QGuiApplication app(argc, argv);
-  QQmlApplicationEngine engine;
   using namespace Qt::StringLiterals;
   const QUrl url(u"qrc:/sample.qml"_s);
-  // const QUrl url(QStringLiteral("main.qml")); // If main.qml is in the same
-  // directory as executable
+  // If sample.qml is in the same directory as executable
+  // const QUrl url(QStringLiteral("sample.qml"));
+
+  QQmlApplicationEngine engine;
   QObject::connect(
       &engine, &QQmlApplicationEngine::objectCreated, &app,
       [url](QObject* obj, const QUrl& objUrl) {
