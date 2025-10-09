@@ -206,7 +206,7 @@ RendererES3::RendererES3(AAssetManager *assetManager) : context_(eglGetCurrentCo
   }
 
   glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LESS);
+  glDepthFunc(GL_ALWAYS);
 
   // Enable backface culling
   glEnable(GL_CULL_FACE);
