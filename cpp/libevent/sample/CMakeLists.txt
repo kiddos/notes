@@ -27,7 +27,19 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(libevent)
 
+FetchContent_Declare(
+  jsoncpp
+  GIT_REPOSITORY https://github.com/open-source-parsers/jsoncpp.git
+  GIT_TAG 1.9.6
+  GIT_SHALLOW TRUE
+)
+
+FetchContent_MakeAvailable(jsoncpp)
+
 add_executable(sample sample.cc)
 
-target_link_libraries(sample PRIVATE event_core event_extra)
+target_link_libraries(sample PRIVATE
+  event_core
+  event_extra
+  jsoncpp_lib)
 target_include_directories(sample PRIVATE ${libevent_SOURCE_DIR}/include)
