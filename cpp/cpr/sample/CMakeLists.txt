@@ -9,8 +9,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(FetchContent)
 FetchContent_Declare(cpr
   GIT_REPOSITORY https://github.com/libcpr/cpr.git
-  GIT_TAG v1.5.1
+  GIT_TAG        1.12.0
+  GIT_SHALLOW    TRUE
+  GIT_PROGRESS   TRUE
 )
+
 FetchContent_MakeAvailable(cpr)
 
 add_executable(sample sample.cc)
