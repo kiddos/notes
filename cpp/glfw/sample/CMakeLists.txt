@@ -8,15 +8,16 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(FETCHCONTENT_QUIET FALSE)
 include(FetchContent)
 
+set(GLFW_BUILD_EXAMPLES OFF)
+set(GLFW_BUILD_TESTS OFF)
+set(GLFW_BUILD_DOCS OFF)
+set(GLFW_INSTALL OFF)
 FetchContent_Declare(
   glfw
   GIT_REPOSITORY https://github.com/glfw/glfw.git
-  GIT_TAG 3.4
-  GIT_SHALLOW TRUE
-  CMAKE_ARGS
-      -DGLFW_BUILD_EXAMPLES=OFF
-      -DGLFW_BUILD_TESTS=OFF
-      -DGLFW_BUILD_DOCS=OFF
+  GIT_TAG        3.4
+  GIT_SHALLOW    TRUE
+  GIT_PROGRESS   TRUE
 )
 FetchContent_MakeAvailable(glfw)
 
@@ -24,6 +25,7 @@ FetchContent_Declare(
   glad
   GIT_REPOSITORY https://github.com/Dav1dde/glad.git
   GIT_TAG v2.0.8
+  GIT_SHALLOW
   GIT_PROGRESS   TRUE
   SOURCE_SUBDIR  cmake
 )
