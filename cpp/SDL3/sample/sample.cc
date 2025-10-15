@@ -16,7 +16,6 @@ void UpdateEvent() {
 }
 
 void MainLoop() {
-  /* convert from milliseconds to seconds. */
   const double now = ((double)SDL_GetTicks()) / 1000.0;
   const float red = (float)(0.5 + 0.5 * SDL_sin(now));
   const float green = (float)(0.5 + 0.5 * SDL_sin(now + SDL_PI_D * 2 / 3));
