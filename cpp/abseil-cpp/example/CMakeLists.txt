@@ -1,16 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
-project(project CXX)
+project(abseil-cpp-example CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-set(BUILD_SHARED_LIBS ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(FETCHCONTENT_QUIET FALSE)
 include(FetchContent)
 
 set(BUILD_SHARED_LIBS OFF)
-
-include(FetchContent)
 
 FetchContent_Declare(
   abseil
@@ -22,7 +19,13 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(abseil)
 
-add_executable(sample sample.cc)
-target_link_libraries(sample PRIVATE
-  absl::strings
-  absl::flat_hash_map)
+add_executable(strings_example strings_example.cc)
+target_link_libraries(strings_example PRIVATE absl::strings)
+
+add_executable(container_example container_example.cc)
+target_link_libraries(container_example PRIVATE absl::flat_hash_map)
+
+add_executable(log_example log_example.cc)
+target_link_libraries(log_example PRIVATE
+  absl::log
+  absl::log_initialize)
