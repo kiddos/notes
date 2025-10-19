@@ -1,7 +1,7 @@
 #include <cuda.h>
 #include <stdio.h>
 
-#include "sample_matmul.h"
+#include "matmul_example.h"
 
 void cuda_check(cudaError_t status, const char* action = NULL,
                 const char* file = NULL, int32_t line = 0) {
