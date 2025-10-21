@@ -1,6 +1,7 @@
 #include <fmt/chrono.h>
 #include <fmt/ranges.h>
 
+#include <vector>
 #include <iostream>
 
 int main() {
