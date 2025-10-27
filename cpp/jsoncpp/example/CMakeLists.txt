@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 3.16)
+project(jsoncpp-example CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(FETCHCONTENT_QUIET FALSE)
+include(FetchContent)
+
+set(JSONCPP_WITH_TESTS OFF CACHE BOOL "Disable jsoncpp test" FORCE)
+set(JSONCPP_WITH_POST_BUILD_UNITTEST OFF CACHE BOOL "Disable jsoncpp unittest" FORCE)
+set(JSONCPP_WITH_PKGCONFIG_SUPPORT OFF CACHE BOOL "Disable jsoncpp pkgconfig" FORCE)
+set(JSONCPP_WITH_EXAMPLE OFF CACHE BOOL "Disable jsoncpp example" FORCE)
+set(BUILD_OBJECT_LIBS OFF CACHE BOOL "Disable jsoncpp object libs" FORCE)
+FetchContent_Declare(
+  jsoncpp
+  GIT_REPOSITORY https://github.com/open-source-parsers/jsoncpp.git
+  GIT_TAG        1.9.6
+  GIT_SHALLOW    TRUE
+  GIT_PROGRESS   TRUE
+)
+
+FetchContent_MakeAvailable(jsoncpp)
+
+add_executable(example example.cc)
+target_link_libraries(example PRIVATE jsoncpp_lib)
