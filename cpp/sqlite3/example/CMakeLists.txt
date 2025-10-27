@@ -1,9 +1,8 @@
-cmake_minimum_required(VERSION 3.14)
-project(sqlite-sample)
+cmake_minimum_required(VERSION 3.16)
+project(sqlite-example C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-set(BUILD_SHARED_LIBS ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(FETCHCONTENT_QUIET FALSE)
 include(FetchContent)
@@ -17,10 +16,10 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(sqlite)
 
-include_directories(${sqlite_SOURCE_DIR})
-
 add_library(sqlite3 STATIC ${sqlite_SOURCE_DIR}/sqlite3.c)
+target_include_directories(sqlite3 PRIVATE ${sqlite_SOURCE_DIR})
 target_link_libraries(sqlite3 Threads::Threads dl)
 
-add_executable(sample sample.cc sqlite.cc)
-target_link_libraries(sample PRIVATE sqlite3)
+add_executable(example example.cc)
+target_include_directories(example PRIVATE ${sqlite_SOURCE_DIR})
+target_link_libraries(example PRIVATE sqlite3)
