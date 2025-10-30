@@ -2,8 +2,8 @@
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 #include <absl/strings/str_format.h>
 
-#include "sample.pb.h"
-#include "sample.grpc.pb.h"
+#include "example.pb.h"
+#include "example.grpc.pb.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;

@@ -1,6 +1,6 @@
 #include <grpcpp/grpcpp.h>
 
-#include "sample.grpc.pb.h"
+#include "example.grpc.pb.h"
 
 using grpc::ClientContext;
 using grpc::Status;

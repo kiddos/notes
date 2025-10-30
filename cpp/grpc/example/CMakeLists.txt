@@ -1,14 +1,15 @@
 cmake_minimum_required(VERSION 3.16)
-project(grpc-sample C CXX)
+project(grpc-example CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-set(BUILD_SHARED_LIBS ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(FETCHCONTENT_QUIET FALSE)
 include(FetchContent)
 
-set(BUILD_TESTS OFF)
+set(BUILD_TESTS OFF CACHE BOOL "Disable build tests" FORCE)
+set(protobuf_INSTALL OFF CACHE BOOL "Disable protobuf install" FORCE)
+set(utf8_range_ENABLE_INSTALL OFF CACHE BOOL "Disable utf8_range install" FORCE)
 
 FetchContent_Declare(
   grpc
@@ -18,26 +19,23 @@ FetchContent_Declare(
   GIT_PROGRESS   TRUE
 )
 
-set(protobuf_INSTALL OFF)
-set(utf8_range_ENABLE_INSTALL OFF)
-
 FetchContent_MakeAvailable(grpc)
 
 set(_PROTOBUF_PROTOC $<TARGET_FILE:protoc>)
 set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:grpc_cpp_plugin>)
 
-set(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/sample.proto)
+set(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/example.proto)
 get_filename_component(PROTO_PATH "${PROTO_FILE}" PATH)
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 set(PROTO_SOURCE
-  ${CMAKE_CURRENT_BINARY_DIR}/sample.pb.cc
-  ${CMAKE_CURRENT_BINARY_DIR}/sample.grpc.pb.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/example.pb.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/example.grpc.pb.cc
 )
 
 set(PROTO_HEADER
-  ${CMAKE_CURRENT_BINARY_DIR}/sample.pb.h
-  ${CMAKE_CURRENT_BINARY_DIR}/sample.grpc.pb.h
+  ${CMAKE_CURRENT_BINARY_DIR}/example.pb.h
+  ${CMAKE_CURRENT_BINARY_DIR}/example.grpc.pb.h
 )
 
 add_custom_command(
@@ -50,24 +48,24 @@ add_custom_command(
     "${PROTO_FILE}"
   DEPENDS "${PROTO_FILE}")
 
-add_library(grpc_sample_proto STATIC
+add_library(grpc_example_proto STATIC
   ${PROTO_SOURCE}
   ${PROTO_HEADER})
-target_link_libraries(grpc_sample_proto
+target_link_libraries(grpc_example_proto
   grpc++_reflection
   grpc++
   protobuf::libprotobuf)
 
-add_executable(sample-server server.cc)
-target_link_libraries(sample-server PRIVATE
-  grpc_sample_proto
+add_executable(example-server server.cc)
+target_link_libraries(example-server PRIVATE
+  grpc_example_proto
   grpc++_reflection
   grpc++
   protobuf::libprotobuf)
 
-add_executable(sample-client client.cc)
-target_link_libraries(sample-client PRIVATE
-  grpc_sample_proto
+add_executable(example-client client.cc)
+target_link_libraries(example-client PRIVATE
+  grpc_example_proto
   grpc++_reflection
   grpc++
   protobuf::libprotobuf)
