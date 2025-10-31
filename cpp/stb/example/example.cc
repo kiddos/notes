@@ -69,7 +69,6 @@ int main(int argc, char** argv) {
     std::cout << "Saved resized.png\n";
   }
 
-  // Free memory
   stbi_image_free(data);
   return 0;
 }
