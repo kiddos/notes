@@ -9,21 +9,13 @@ enum class UpdateType { Assign, Add };
 template <typename T, typename F, T DEFAULT, UpdateType UPDATE_TYPE>
 class GenericSegmentTree {
  public:
-  GenericSegmentTree(int n) : n(n) {
-    int x = (int)(ceil(log2(n + 1)));
-    int max_size = 2 * (int)pow(2, x);
-    data_ = vector<T>(max_size);
-  }
+  GenericSegmentTree(int n) : n(n), data_(n * 4) {}
 
-  GenericSegmentTree(vector<T>& data) {
-    n = data.size();
-    int x = (int)(ceil(log2(n)));
-    int max_size = 2 * (int)pow(2, x) - 1;
-    data_ = vector<T>(max_size);
+  GenericSegmentTree(vector<T>& data) : n(data.size()), data_(data.size() * 4) {
     build_tree(data, 0, 0, n - 1);
   }
 
-  void build_tree(vector<T>& data, int i, int tl, int tr) {
+  void build_tree(vector<T>& data, int i, int tl, int tr) noexcept {
     if (tl == tr) {
       data_[i] = data[tl];
       return;
@@ -34,20 +26,23 @@ class GenericSegmentTree {
     data_[i] = merge(data_[i * 2 + 1], data_[i * 2 + 2]);
   }
 
-  T query(int i, int tl, int tr, int ql, int qr) {
-    if (ql > qr) return DEFAULT;
-    if (tr < ql || tl > qr) return DEFAULT;
-    if (tl >= ql && tr <= qr) return data_[i];
+  T query(int i, int tl, int tr, int ql, int qr) noexcept {
+    if (tr < ql || tl > qr) {
+      return DEFAULT;
+    }
+    if (tl >= ql && tr <= qr) {
+      return data_[i];
+    }
 
-    int tm = tl + (tr - tl) / 2;
-    T left = query(i * 2 + 1, tl, tm, ql, min(tm, qr));
-    T right = query(i * 2 + 2, tm + 1, tr, max(tm, ql), qr);
+    int tm = (tl + tr) / 2;
+    T left = query(i * 2 + 1, tl, tm, ql, qr);
+    T right = query(i * 2 + 2, tm + 1, tr, ql, qr);
     return merge(left, right);
   }
 
-  T query(int ql, int qr) { return query(0, 0, n - 1, ql, qr); }
+  T query(int ql, int qr) noexcept { return query(0, 0, n - 1, ql, qr); }
 
-  void update(int i, int tl, int tr, int index, const T& val) {
+  void update(int i, int tl, int tr, int index, const T& val) noexcept {
     if (tl == tr) {
       if constexpr (UPDATE_TYPE == UpdateType::Assign) {
         data_[i] = val;
@@ -57,7 +52,7 @@ class GenericSegmentTree {
       return;
     }
 
-    int tm = tl + (tr - tl) / 2;
+    int tm = (tl + tr) / 2;
     if (index <= tm) {
       update(i * 2 + 1, tl, tm, index, val);
     } else {
@@ -66,13 +61,14 @@ class GenericSegmentTree {
     data_[i] = merge(data_[i * 2 + 1], data_[i * 2 + 2]);
   }
 
-  void update(int index, T val) { update(0, 0, n - 1, index, val); }
+  void update(int index, T val) noexcept { update(0, 0, n - 1, index, val); }
 
  private:
   int n;
   vector<T> data_;
+  F f;
 
-  inline T merge(T x, T y) { return F{}(x, y); }
+  inline T merge(T x, T y) { return f(x, y); }
 };
 
 template <typename T>
@@ -109,7 +105,8 @@ struct Merge {
     i64 total = lhs.sum + rhs.sum;
     i64 prefix = max(lhs.prefix_sum, lhs.sum + rhs.prefix_sum);
     i64 suffix = max(rhs.suffix_sum, rhs.sum + lhs.suffix_sum);
-    i64 max_val = max({lhs.suffix_sum + rhs.prefix_sum, lhs.max_val, rhs.max_val});
+    i64 max_val =
+        max({lhs.suffix_sum + rhs.prefix_sum, lhs.max_val, rhs.max_val});
     return Node(total, prefix, suffix, max_val);
   }
 };
