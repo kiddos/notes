@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.14)
-project(pybind11-sample)
+cmake_minimum_required(VERSION 3.16)
+project(pybind11-example CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
@@ -13,17 +13,19 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/pybind/pybind11.git
   GIT_TAG        v2.13.6
   GIT_SHALLOW    TRUE
+  GIT_PROGRESS   TRUE
 )
 
 FetchContent_Declare(
   fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt
-  GIT_TAG        11.0.2
+  GIT_TAG        12.0.0
   GIT_SHALLOW    TRUE
+  GIT_PROGRESS   TRUE
 )
 
 FetchContent_MakeAvailable(pybind11 fmt)
 include_directories(${fmt_SOURCE_DIR}/include)
 
 pybind11_add_module(module module.cc)
-target_link_libraries(module PRIVATE fmt)
+target_link_libraries(module PRIVATE fmt::fmt)
