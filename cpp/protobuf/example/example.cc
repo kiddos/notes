@@ -1,4 +1,4 @@
-#include "sample.pb.h"
+#include "example.pb.h"
 
 int main(void) {
   Message message;

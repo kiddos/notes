@@ -1,27 +1,30 @@
-cmake_minimum_required(VERSION 3.14)
-project(protobuf-sample LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.16)
+project(protobuf-example CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-set(BUILD_SHARED_LIBS ON)
+# set(BUILD_SHARED_LIBS ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(FETCHCONTENT_QUIET FALSE)
-
 include(FetchContent)
 
+set(protobuf_INSTALL OFF CACHE BOOL "Disable protobuf install" FORCE)
+set(protobuf_BUILD_TESTS OFF CACHE BOOL "Disable protobuf tests" FORCE)
+set(protobuf_BUILD_EXAMPLES OFF CACHE BOOL "Disable protobuf examples" FORCE)
 FetchContent_Declare(
   protobuf
   GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
   GIT_TAG        v31.1
   GIT_SHALLOW    TRUE
+  GIT_PROGRESS   TRUE
 )
 FetchContent_MakeAvailable(protobuf)
 
-set(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/sample.proto)
+set(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/example.proto)
 
 # Define the output paths for the generated C++ source and header files
-set(PROTO_SRCS ${CMAKE_CURRENT_BINARY_DIR}/sample.pb.cc)
-set(PROTO_HDRS ${CMAKE_CURRENT_BINARY_DIR}/sample.pb.h)
+set(PROTO_SRCS ${CMAKE_CURRENT_BINARY_DIR}/example.pb.cc)
+set(PROTO_HDRS ${CMAKE_CURRENT_BINARY_DIR}/example.pb.h)
 
 add_custom_command(
   OUTPUT ${PROTO_SRCS} ${PROTO_HDRS}
@@ -39,8 +42,8 @@ add_custom_target(
   DEPENDS ${PROTO_SRCS} ${PROTO_HDRS}
 )
 
-add_executable(sample sample.cc)
-add_dependencies(sample GenerateProtoSources)
-target_sources(sample PRIVATE ${PROTO_SRCS})
-target_include_directories(sample PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-target_link_libraries(sample PRIVATE protobuf::libprotobuf)
+add_executable(example example.cc)
+add_dependencies(example GenerateProtoSources)
+target_sources(example PRIVATE ${PROTO_SRCS})
+target_include_directories(example PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(example PRIVATE protobuf::libprotobuf)
