@@ -15,6 +15,7 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/openssl/openssl
   GIT_TAG        openssl-3.5.1
   GIT_SHALLOW    TRUE
+  GIT_PROGRESS   TRUE
 )
 FetchContent_MakeAvailable(openssl)
 
@@ -66,18 +67,19 @@ set(OPENSSL_INCLUDE_DIR "${OPENSSL_INSTALL_PREFIX}/include")
 set(OPENSSL_SSL_LIB "${OPENSSL_INSTALL_PREFIX}/lib64/libssl.a")
 set(OPENSSL_CRYPTO_LIB "${OPENSSL_INSTALL_PREFIX}/lib64/libcrypto.a")
 
-add_executable(sample sample.cc)
 find_package(Threads REQUIRED)
+
+add_executable(example example.cc)
 # target_link_libraries(sample PRIVATE libcurl)
-target_include_directories(sample PRIVATE
+target_include_directories(example PRIVATE
   ${LIBCURL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
 )
-target_link_libraries(sample PRIVATE
+target_link_libraries(example PRIVATE
     ${LIBCURL_LIB}
     ${OPENSSL_SSL_LIB}
     ${OPENSSL_CRYPTO_LIB}
     dl
     Threads::Threads
 )
-add_dependencies(sample openssl_external_project)
+add_dependencies(example openssl_external_project)
