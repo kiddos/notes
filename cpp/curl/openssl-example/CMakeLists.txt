@@ -6,80 +6,43 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(BUILD_SHARED_LIBS ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(FETCHCONTENT_QUIET FALSE)
-
-include(FetchContent)
 include(ExternalProject)
 
-FetchContent_Declare(
-  openssl
-  GIT_REPOSITORY https://github.com/openssl/openssl
-  GIT_TAG        openssl-3.5.1
+set(OPENSSL_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/openssl/install")
+set(OPENSSL_SOURCE_DIR "${CMAKE_BINARY_DIR}/openssl/src/openssl")
+ExternalProject_Add(openssl
+  PREFIX ${CMAKE_BINARY_DIR}/openssl
+  URL https://github.com/openssl/openssl/releases/download/openssl-3.6.0/openssl-3.6.0.tar.gz
+  CONFIGURE_COMMAND ${OPENSSL_SOURCE_DIR}/Configure no-dso no-shared --prefix=${OPENSSL_INSTALL_PREFIX}
+  BUILD_COMMAND make -j8
+  INSTALL_COMMAND make install_sw
+)
+
+set(LIBCURL_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/curl")
+ExternalProject_Add(libcurl
+  PREFIX ${CMAKE_BINARY_DIR}/curl
+  GIT_REPOSITORY https://github.com/curl/curl.git
+  GIT_TAG        curl-8_17_0
   GIT_SHALLOW    TRUE
   GIT_PROGRESS   TRUE
+  CMAKE_ARGS
+    -DCMAKE_USE_OPENSSL=ON
+    -DBUILD_STATIC_LIBS=ON
+    -DBUILD_STATIC_CURL=ON
+    -DOPENSSL_ROOT_DIR=${OPENSSL_INSTALL_PREFIX}
+    -DCMAKE_INSTALL_PREFIX=${LIBCURL_INSTALL_PREFIX}
+  DEPENDS openssl
 )
-FetchContent_MakeAvailable(openssl)
-
-set(OPENSSL_BUILD_DIR "${CMAKE_BINARY_DIR}/openssl-build")
-set(OPENSSL_INSTALL_PREFIX "${OPENSSL_BUILD_DIR}/install")
-ExternalProject_Add(openssl_external_project
-  SOURCE_DIR "${openssl_SOURCE_DIR}"
-  BINARY_DIR "${OPENSSL_BUILD_DIR}"
-  CONFIGURE_COMMAND perl "${openssl_SOURCE_DIR}/Configure" -static -no-docs --prefix=${OPENSSL_INSTALL_PREFIX}
-  BUILD_COMMAND $(MAKE) -j8
-  INSTALL_COMMAND $(MAKE) install
-  BUILD_BYPRODUCTS
-      "${OPENSSL_INSTALL_PREFIX}/lib64/libssl.a"
-      "${OPENSSL_INSTALL_PREFIX}/lib64/libcrypto.a"
-  CLEAN_COMMAND ${CMAKE_COMMAND} -E remove_directory "${OPENSSL_BUILD_DIR}"
-)
-
-FetchContent_Declare(
-  libcurl
-  URL https://curl.se/download/curl-8.15.0.tar.gz
-)
-
-FetchContent_GetProperties(libcurl)
-if(NOT libcurl_POPULATED)
-  FetchContent_Populate(libcurl)
-endif()
-
-set(LIBCURL_BUILD_DIR "${CMAKE_BINARY_DIR}/libcurl-build")
-set(LIBCURL_INSTALL_PREFIX "${LIBCURL_BUILD_DIR}/install")
-
-ExternalProject_Add(libcurl_external_project
-  SOURCE_DIR "${libcurl_SOURCE_DIR}"
-  BINARY_DIR "${LIBCURL_BUILD_DIR}"
-  CONFIGURE_COMMAND <SOURCE_DIR>/configure
-                    --prefix=${LIBCURL_INSTALL_PREFIX}
-                    --with-openssl=${OPENSSL_INSTALL_PREFIX}
-                    --disable-shared
-                    --without-zlib
-                    --without-brotli
-                    --without-libpsl
-  BUILD_COMMAND $(MAKE) -j8
-  INSTALL_COMMAND $(MAKE) install
-  DEPENDS openssl_external_project
-)
-
-set(LIBCURL_INCLUDE_DIR "${LIBCURL_INSTALL_PREFIX}/include")
-set(LIBCURL_LIB "${LIBCURL_INSTALL_PREFIX}/lib/libcurl.a")
-set(OPENSSL_INCLUDE_DIR "${OPENSSL_INSTALL_PREFIX}/include")
-set(OPENSSL_SSL_LIB "${OPENSSL_INSTALL_PREFIX}/lib64/libssl.a")
-set(OPENSSL_CRYPTO_LIB "${OPENSSL_INSTALL_PREFIX}/lib64/libcrypto.a")
-
-find_package(Threads REQUIRED)
+add_dependencies(libcurl openssl)
 
 add_executable(example example.cc)
-# target_link_libraries(sample PRIVATE libcurl)
 target_include_directories(example PRIVATE
-  ${LIBCURL_INCLUDE_DIR}
-  ${OPENSSL_INCLUDE_DIR}
+  ${LIBCURL_INSTALL_PREFIX}/include
+)
+target_link_directories(example PRIVATE
+  ${LIBCURL_INSTALL_PREFIX}/lib
 )
 target_link_libraries(example PRIVATE
-    ${LIBCURL_LIB}
-    ${OPENSSL_SSL_LIB}
-    ${OPENSSL_CRYPTO_LIB}
-    dl
-    Threads::Threads
+  curl
 )
-add_dependencies(example openssl_external_project)
+add_dependencies(example libcurl)
