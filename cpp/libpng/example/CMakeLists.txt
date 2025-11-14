@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(libpng-sample C CXX)
+project(libpng-example C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
@@ -8,9 +8,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(FETCHCONTENT_QUIET FALSE)
 include(FetchContent)
 
-set(PNG_EXECUTABLES OFF)
-set(PNG_TESTS OFF)
-set(PNG_TOOLS OFF)
+set(PNG_EXECUTABLES OFF CACHE BOOL "Disable png executables" FORCE)
+set(PNG_TESTS OFF CACHE BOOL "Disable png tests" FORCE)
+set(PNG_TOOLS OFF CACHE BOOL "Disable png tools" FORCE)
 FetchContent_Declare(
   libpng
   GIT_REPOSITORY https://github.com/pnggroup/libpng.git
@@ -20,5 +20,5 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(libpng)
 
-add_executable(sample sample.cc)
-target_link_libraries(sample PRIVATE png_static)
+add_executable(example example.cc)
+target_link_libraries(example PRIVATE png_static)
