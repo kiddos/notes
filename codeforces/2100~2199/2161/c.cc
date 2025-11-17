@@ -5,48 +5,34 @@ using namespace std;
 using i64 = long long;
 
 void solve() {
-  int n = 0, k = 0;
-  cin >> n >> k;
-  string a, b;
-  cin >> a >> b;
-  map<char,int> count_a;
+  int n = 0, X = 0;
+  cin >> n >> X;
+  vector<int> a(n);
   for (int i = 0; i < n; ++i) {
-    count_a[a[i]]++;
+    cin >> a[i];
   }
-  map<char,int> count_b;
-  for (int i = 0; i < n; ++i) {
-    count_b[b[i]]++;
-  }
-  for (auto& [ca, count] : count_a) {
-    auto it = count_b.begin();
-    char cb = it->first;
-    if (cb < ca) {
-      cout << "NO" << endl;
-      return;
-    } else if (ca == cb) {
-      if (it->second > count) {
-        cout << "NO" << endl;
-        return;
-      }
-      int left = count - it->second;
-      count_b.erase(it);
-      if (left % k == 0) {
-        if (left > 0) {
-          count_a[ca+1] += left;
-        }
-      } else {
-        cout << "NO" << endl;
-        return;
-      }
-    } else if (ca < cb) {
-      if (count % k != 0) {
-        cout << "NO" << endl;
-        return;
-      }
-      count_a[ca+1] += count;
+  sort(a.begin(), a.end());
+  i64 S = 0;
+  int l = 0, r = n-1;
+  vector<int> ans;
+  i64 points = 0;
+  while (l <= r) {
+    if ((S + a[r]) / X > S / X) {
+      points += a[r];
+      S += a[r];
+      ans.push_back(a[r]);
+      r--;
+    } else {
+      S += a[l];
+      ans.push_back(a[l]);
+      l++;
     }
   }
-  cout << "YES" << endl;
+  cout << points << endl;
+  for (int i = 0; i < n; ++i) {
+    cout << ans[i] << " ";
+  }
+  cout << endl;
 }
 
 int main(void) {
