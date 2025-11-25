@@ -18,4 +18,3 @@ FetchContent_MakeAvailable(CLI11)
 
 add_executable(example example.cc)
 target_include_directories(example PRIVATE ${CLI11_SOURCE_DIR}/include)
-target_link_libraries(example PRIVATE CLI11)
