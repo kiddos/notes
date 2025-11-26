@@ -15,6 +15,7 @@ set(EVENT__DISABLE_BENCHMARK ON CACHE BOOL "Disable libevent benchmark" FORCE)
 set(EVENT__DISABLE_TESTS ON CACHE BOOL "Disable libevent tests" FORCE)
 set(EVENT__DISABLE_REGRESS ON CACHE BOOL "Disable libevent regress" FORCE)
 set(EVENT__DISABLE_DOXYGEN ON CACHE BOOL "Disable libevent docs" FORCE)
+set(EVENT__LIBRARY_TYPE "STATIC" CACHE BOOL "Build libevent static" FORCE)
 FetchContent_Declare(
   libevent
   GIT_REPOSITORY https://github.com/libevent/libevent.git
@@ -41,9 +42,17 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(jsoncpp)
 
 add_executable(example example.cc)
-target_include_directories(example PRIVATE ${libevent_SOURCE_DIR}/include)
+target_include_directories(example PRIVATE
+  ${libevent_SOURCE_DIR}/include
+)
+target_link_directories(example PRIVATE
+  ${libevent_BINARY_DIR}/lib
+  ${jsoncpp_BINARY_DIR}/lib
+)
 target_link_libraries(example PRIVATE
+  event
   event_core
   event_extra
+  event_pthreads
   jsoncpp_lib
 )
