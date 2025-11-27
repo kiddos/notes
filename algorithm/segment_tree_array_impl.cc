@@ -7,6 +7,40 @@ using i64 = long long;
 enum class UpdateType { Assign, Add };
 
 template <typename T, typename F, T DEFAULT, UpdateType UPDATE_TYPE>
+class GenericSegmentTreeIterative {
+ public:
+  GenericSegmentTreeIterative(int n) : n(n), data_(n * 2) {}
+ 
+  T query(int l, int r) noexcept {
+    T ans = DEFAULT;
+    l += n;
+    r += n;
+    for (; l < r; l >>= 1, r >>= 1) {
+      if (l & 1) {
+        ans = merge(ans, data_[l++]);
+      }
+      if (r & 1) {
+        ans = merge(ans, data_[--r]);
+      }
+    }
+    return ans;
+  }
+ 
+  void update(int index, const T& val) noexcept {
+    index += n;
+    data_[index] = val;
+    for (; index > 1; index >>= 1) {
+      data_[index / 2] = merge(data_[index], data_[index ^ 1]);
+    }
+  }
+ 
+ private:
+  int n;
+  vector<T> data_;
+  F merge;
+};
+
+template <typename T, typename F, T DEFAULT, UpdateType UPDATE_TYPE>
 class GenericSegmentTree {
  public:
   GenericSegmentTree(int n) : n(n), data_(n * 4) {}
