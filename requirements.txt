@@ -1,0 +1,9 @@
+matplotlib
+numpy
+torch
+torchvision
+torchaudio
+transformers
+jupyterlab
+jax[cuda12]
+flax
