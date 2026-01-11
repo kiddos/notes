@@ -1,0 +1,28 @@
+[project]
+name = "notes"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ai-edge-litert>=2.1.0",
+    "flax>=0.12.2",
+    "jax[cuda12]>=0.8.2",
+    "jupyterlab>=4.5.1",
+    "matplotlib>=3.10.8",
+    "numpy==2.1.0",
+    "onnx>=1.20.1",
+    "onnx-graphsurgeon>=0.5.8",
+    "onnx2tf>=1.28.8",
+    "onnxruntime>=1.23.2",
+    "onnxslim>=0.1.82",
+    "sng4onnx>=1.0.4",
+    "tensorflow==2.19.0",
+    "tensorflow-datasets>=4.9.9",
+    "tf-keras==2.19.0",
+    "torch>=2.9.1",
+    "torchaudio>=2.9.1",
+    "torchvision>=0.24.1",
+    "transformers>=4.57.3",
+    "ultralytics>=8.3.252",
+]
