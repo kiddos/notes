@@ -18,33 +18,33 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 
 class MainActivity : ComponentActivity() {
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    enableEdgeToEdge()
-    setContent {
-      CameraXBasicTheme {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-          MainScreen(Modifier.padding(innerPadding))
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            CameraXBasicTheme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    MainScreen(Modifier.padding(innerPadding))
+                }
+            }
         }
-      }
     }
-  }
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
-  val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA);
+    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA);
 
-  if (cameraPermissionState.status.isGranted) {
-    CameraScreen()
-  } else {
-    NoPermissionScreen(onRequestPermission = cameraPermissionState::launchPermissionRequest)
-  }
+    if (cameraPermissionState.status.isGranted) {
+        CameraScreen()
+    } else {
+        NoPermissionScreen(onRequestPermission = cameraPermissionState::launchPermissionRequest)
+    }
 }
 
 @Preview
 @Composable
 fun PreviewMainScreen() {
-  MainScreen()
+    MainScreen()
 }
