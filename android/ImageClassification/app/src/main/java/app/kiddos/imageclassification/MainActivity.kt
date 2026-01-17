@@ -19,38 +19,38 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 
 class MainActivity : ComponentActivity() {
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    enableEdgeToEdge()
-    setContent {
-      ImageClassificationTheme {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-          MainApp(
-            modifier = Modifier.padding(innerPadding)
-          )
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            ImageClassificationTheme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    MainApp(
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
+            }
         }
-      }
     }
-  }
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MainApp(modifier: Modifier = Modifier) {
-  val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
-  Row(modifier = modifier) {
-    if (cameraPermissionState.status.isGranted) {
-      CameraScreen()
-    } else {
-      NoPermissionScreen(onRequestPermission = cameraPermissionState::launchPermissionRequest)
+    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+    Row(modifier = modifier) {
+        if (cameraPermissionState.status.isGranted) {
+            CameraScreen()
+        } else {
+            NoPermissionScreen(onRequestPermission = cameraPermissionState::launchPermissionRequest)
+        }
     }
-  }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-  ImageClassificationTheme {
-    MainApp()
-  }
+    ImageClassificationTheme {
+        MainApp()
+    }
 }
