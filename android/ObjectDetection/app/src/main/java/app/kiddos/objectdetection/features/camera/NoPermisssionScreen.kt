@@ -19,37 +19,37 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun NoPermissionScreen(
-  onRequestPermission: () -> Unit
+    onRequestPermission: () -> Unit
 ) {
 
-  NoPermissionContent(
-    onRequestPermission = onRequestPermission
-  )
+    NoPermissionContent(
+        onRequestPermission = onRequestPermission
+    )
 }
 
 @Composable
 private fun NoPermissionContent(
-  onRequestPermission: () -> Unit
+    onRequestPermission: () -> Unit
 ) {
-  Column(
-    modifier = Modifier
-      .fillMaxSize()
-      .padding(horizontal = 16.dp),
-    horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.Center
-  ) {
-    Spacer(modifier = Modifier.height(16.dp))
-    Button(onClick = onRequestPermission) {
-      Icon(imageVector = Icons.Default.Camera, contentDescription = "Camera")
-      Text(text = "Grant permission")
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onRequestPermission) {
+            Icon(imageVector = Icons.Default.Camera, contentDescription = "Camera")
+            Text(text = "Grant permission")
+        }
     }
-  }
 }
 
 @Preview
 @Composable
 private fun Preview_NoPermissionContent() {
-  NoPermissionContent(
-    onRequestPermission = {}
-  )
+    NoPermissionContent(
+        onRequestPermission = {}
+    )
 }
