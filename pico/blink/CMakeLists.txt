@@ -1,39 +1,35 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(FETCHCONTENT_QUIET FALSE)
+include(FetchContent)
 
-if (NOT DEFINED ENV{PICO_SDK_PATH})
-  message(FATAL_ERROR "Error: PICO_SDK_PATH is not set. Please set it before running CMake.")
+FetchContent_Declare(
+  pico_sdk
+  URL https://github.com/raspberrypi/pico-sdk/releases/download/2.2.0/pico-sdk-2.2.0.tar.gz
+)
+FetchContent_GetProperties(pico_sdk)
+if (NOT pico_sdk_POPULATED)
+  FetchContent_Populate(pico_sdk)
+  set(PICO_SDK_PATH ${pico_sdk_SOURCE_DIR} CACHE PATH "Path to the Pico SDK" FORCE)
 endif()
 
-include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
-# include($ENV{PICO_SDK_PATH}/pico_sdk_init.cmake)
-project(blink_sample C CXX ASM)
+include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+project(blink C CXX ASM)
 
 pico_sdk_init()
 
-if (NOT DEFINED PICO_CYW43_SUPPORTED)
-  message(FATAL_ERROR "set by PICO_BOARD=pico_w")
-endif()
-
-if (NOT TARGET pico_cyw43_arch)
-  message(FATAL_ERROR "Skipping Pico W examples as support is not available")
-endif()
-
 add_executable(blink
-  main.cc
+  main.c
 )
 pico_enable_stdio_usb(blink 1)
-# pico_enable_stdio_uart(blink 0)
 
 # pull in common dependencies
 target_link_libraries(blink
   pico_stdlib
-  pico_cyw43_arch_none
-  )
+)
 
-# create map/bin/hex file etc.
 pico_add_extra_outputs(blink)
