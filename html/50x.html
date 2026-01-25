@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oops! 500 Error</title>
+  <style>
+    :root {
+      --bg-color: linear-gradient(to bottom, #e0f7fa, #b2ebf2, #80deea, #4dd0e1);
+
+      --bg-wrapper: #b2ebf2;
+      --bg-head: #e0f7fa;
+      --bg-er: #b0dfe8;
+      --border-color-er: #e0f7fa;
+      --bg-ey: #30475e;
+      --bg-muzzle: #b0dfe8;
+      --bg-ns: #222831;
+      --bg-mth: #222831;
+
+      --width-wrapper: min(450px, 95vw);
+      --height-wrapper: 400px;
+      --width-head: 240px;
+      --height-head: 300px;
+      --width-er: 100px;
+      --height-er: 100px;
+      --width-ey: 24px;
+      --height-ey: 24px;
+      --width-muzzle: 72px;
+      --height-muzzle: 75px;
+      --width-ns: 32px;
+      --height-ns: 20px;
+      --width-bottom-ns: 7px;
+      --height-bottom-ns: 30px;
+      --width-mth: 36px;
+      --height-mth: 7px;
+
+      --transition: all 0.3s ease-in-out;
+    }
+
+    @layer reset {
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+    }
+
+    @layer base {
+      body {
+        background: var(--bg-color);
+        color: var(--color-text);
+
+        display: grid;
+        place-content: center;
+        min-height: 100dvh;
+      }
+    }
+
+    @layer componentes {
+      .container {
+        background-color: var(--bg-wrapper);
+
+        position: relative;
+
+        width: var(--width-wrapper);
+        height: var(--height-wrapper);
+        border-radius: 25%;
+      }
+
+      .head {
+        background-color: var(--bg-head);
+
+        position: absolute;
+
+        width: var(--width-head);
+        height: var(--height-head);
+        border-radius: 90px 90px 0 0;
+
+        &::before {
+          content: "";
+          background-color: var(--bg-head);
+
+          position: absolute;
+          inset: 0;
+
+          border-radius: 90px 90px 0 0;
+          z-index: 9;
+        }
+      }
+
+      .er {
+        background-color: var(--bg-er);
+
+        position: absolute;
+
+        width: var(--width-er);
+        height: var(--height-er);
+        border: 15px solid var(--border-color-er);
+        border-radius: 50%;
+        transition: var(--transition);
+      }
+
+      .er-left {
+        left: -15%;
+      }
+
+      .er-right {
+        right: -15%;
+      }
+
+      .ey {
+        background-color: var(--bg-ey);
+
+        position: absolute;
+        top: 25%;
+
+        width: var(--width-ey);
+        height: var(--height-ey);
+        border-radius: 50%;
+        transform-origin: center;
+
+        animation: blink 3s infinite 1s;
+
+        z-index: 99;
+      }
+
+      .ey-left {
+        left: 25%;
+      }
+
+      .ey-right {
+        right: 25%;
+      }
+
+      .muzzle {
+        background-color: var(--bg-muzzle);
+
+        position: absolute;
+        top: 28%;
+        left: 50%;
+        translate: -50%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: var(--width-muzzle);
+        height: var(--height-muzzle);
+        border-radius: 45%;
+
+        z-index: 99;
+      }
+
+      .ns {
+        background-color: var(--bg-ns);
+
+        position: absolute;
+        top: 15%;
+
+        width: var(--width-ns);
+        height: var(--height-ns);
+        border-radius: 40%;
+      }
+
+      .bottom-ns {
+        background-color: var(--bg-ns);
+
+        width: var(--width-bottom-ns);
+        height: var(--height-bottom-ns);
+      }
+
+      .mth {
+        background-color: var(--bg-mth);
+        position: absolute;
+        top: 65%;
+
+        width: var(--width-mth);
+        height: var(--height-mth);
+        border-radius: 10px;
+      }
+    }
+
+    @layer utilities {
+      .center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        transform: scaleY(1);
+      }
+
+      /* First blink */
+      5%,
+      9% {
+        transform: scaleY(0.1);
+      }
+
+      15% {
+        transform: scaleY(1);
+      }
+
+      /* Second blink */
+      20%,
+      25% {
+        transform: scaleY(0.1);
+      }
+
+      30% {
+        transform: scaleY(1);
+      }
+    }
+
+
+    body {
+      background-color: var(--bg);
+      color: #334155;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #1e293b;
+    }
+
+    p {
+      color: #64748b;
+      margin-bottom: 2rem;
+      max-width: 400px;
+      line-height: 1.5;
+    }
+
+    .btn {
+      text-decoration: none;
+      padding: 0.8rem 1.8rem;
+      border-radius: 50px;
+      font-weight: bold;
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+      transition: transform 0.2s;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="container center">
+      <div class="head">
+        <div class="er er-left"></div>
+        <div class="er er-right"></div>
+
+        <div class="ey ey-left"></div>
+        <div class="ey ey-right"></div>
+
+        <div class="muzzle">
+          <div class="ns"></div>
+          <div class="bottom-ns"></div>
+          <div class="mth"></div>
+        </div>
+      </div>
+    </div>
+
+    <h1>Our robot is pooped!</h1>
+    <p>He tried his best, but the server hit a snag. He's taking a quick nap while we fix things up.</p>
+    <div class="btns">
+      <a href="/" class="btn">Take Me Home</a>
+    </div>
+  </div>
+</body>
+
+</html>
