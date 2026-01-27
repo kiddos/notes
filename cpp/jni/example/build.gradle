@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
+}
+
+def nativeBuildDir = layout.buildDirectory.dir("native")
+
+tasks.register('cmakeConfigure', Exec) {
+    commandLine 'cmake', '-B', nativeBuildDir.get().asFile.absolutePath
+}
+
+tasks.register('cmakeBuild', Exec) {
+    dependsOn 'cmakeConfigure'
+    commandLine 'cmake', '--build', nativeBuildDir.get().asFile.absolutePath
+}
+
+tasks.named('build') {
+    dependsOn 'cmakeBuild'
+}
+
+jar {
+    from(nativeBuildDir) {
+        include '**/*.so', '**/*.dll', '**/*.dylib'
+    }
+}
+
+tasks.test {
+    dependsOn tasks.named("cmakeBuild")
+    useJUnitPlatform()
+    systemProperty "java.library.path", layout.buildDirectory.dir("native").get().asFile.absolutePath
+
+    testLogging {
+        showStandardStreams = true
+    }
+}
