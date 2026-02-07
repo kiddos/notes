@@ -1,7 +1,4 @@
 menu "Configuration"
-
-    orsource "$IDF_PATH/examples/common_components/env_caps/$IDF_TARGET/Kconfig.env_caps"
-
     config MAIN_LOOP_PERIOD
         int "period in ms"
         range 10 3600000
