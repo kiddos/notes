@@ -4,7 +4,7 @@ using namespace std;
 
 using i64 = long long;
 
-template <typename T, typename M, typename L, T IDENTITY>
+template <typename T, typename M, typename P, T IDENTITY>
 class LazySegmentTree {
  public:
   LazySegmentTree(int n) : n(n) {
@@ -45,10 +45,10 @@ class LazySegmentTree {
     }
 
     if (tl >= l && tr <= r) {
-      L{}.apply_to_data_node(data_[i], tl, tr, val);
+      prop_.apply_to_data_node(data_[i], tl, tr, val);
       if (tl != tr) {
-        L{}.propagate(lazy_[i * 2 + 1], val);
-        L{}.propagate(lazy_[i * 2 + 2], val);
+        prop_.propagate(lazy_[i * 2 + 1], val);
+        prop_.propagate(lazy_[i * 2 + 2], val);
       }
       lazy_[i] = 0;
       return;
@@ -57,7 +57,7 @@ class LazySegmentTree {
     int tm = (tl + tr) / 2;
     update(i * 2 + 1, tl, tm, l, r, val);
     update(i * 2 + 2, tm + 1, tr, l, r, val);
-    data_[i] = M{}(data_[i * 2 + 1], data_[i * 2 + 2]);
+    data_[i] = merge_(data_[i * 2 + 1], data_[i * 2 + 2]);
   }
 
   void update(int l, int r, T val) { update(0, 0, n - 1, l, r, val); }
@@ -76,7 +76,7 @@ class LazySegmentTree {
     int tm = (tl + tr) / 2;
     T left = query(i * 2 + 1, tl, tm, ql, qr);
     T right = query(i * 2 + 2, tm + 1, tr, ql, qr);
-    return M{}(left, right);
+    return merge_(left, right);
   }
 
   T query(int ql, int qr) { return query(0, 0, n - 1, ql, qr); }
@@ -85,13 +85,15 @@ class LazySegmentTree {
   int n;
   vector<T> data_;
   vector<T> lazy_;
+  M merge_;
+  P prop_;
 
   void push(int i, int tl, int tr) {
     if (lazy_[i]) {
-      L{}.apply_to_data_node(data_[i], tl, tr, lazy_[i]);
+      prop_.apply_to_data_node(data_[i], tl, tr, lazy_[i]);
       if (tl != tr) {
-        L{}.propagate(lazy_[i * 2 + 1], lazy_[i]);
-        L{}.propagate(lazy_[i * 2 + 2], lazy_[i]);
+        prop_.propagate(lazy_[i * 2 + 1], lazy_[i]);
+        prop_.propagate(lazy_[i * 2 + 2], lazy_[i]);
       }
       lazy_[i] = 0;
     }
