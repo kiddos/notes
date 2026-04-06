@@ -8,6 +8,7 @@ dependencies = [
     "ai-edge-litert>=2.1.0",
     "datasets>=4.4.2",
     "flax>=0.12.2",
+    "gradio-client>=2.4.0",
     "jax[cuda12]>=0.8.2",
     "jupyterlab>=4.5.1",
     "matplotlib>=3.10.8",
