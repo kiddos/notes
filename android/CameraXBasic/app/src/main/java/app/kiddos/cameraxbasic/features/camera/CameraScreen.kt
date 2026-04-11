@@ -8,7 +8,7 @@ import android.util.Log
 import android.util.Size
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.LinearLayout
-import androidx.camera.camera2.interop.Camera2Interop
+import androidx.camera.camera2.interop.Camera2CameraControl
 import androidx.camera.camera2.interop.CaptureRequestOptions
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.ImageCapture
@@ -26,11 +26,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -39,8 +37,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -56,16 +52,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -88,13 +81,31 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.util.concurrent.Executor
 
+data class CameraActions(
+    val onExposureChange: (Float) -> Unit,
+    val onResolutionChange: (CameraResolution) -> Unit,
+    val onAutoChange: (Boolean) -> Unit,
+    val onIsoChange: (Float) -> Unit,
+    val onShutterChange: (Long) -> Unit,
+    val onPhotoCaptured: (Bitmap) -> Unit,
+    val onIsSettingsVisibleChange: (Boolean) -> Unit,
+)
+
 @Composable
 fun CameraScreen(viewModel: CameraViewModel = viewModel()) {
     val cameraState: CameraState by viewModel.state.collectAsStateWithLifecycle()
 
     CameraContent(
-        onPhotoCaptured = viewModel::storePhotoInGallery,
-        lastCapturedPhoto = cameraState.capturedImage
+        state = cameraState,
+        actions = CameraActions(
+            onExposureChange = viewModel::updateExposure,
+            onResolutionChange = viewModel::updateResolution,
+            onAutoChange = viewModel::updateAuto,
+            onIsoChange = viewModel::updateIso,
+            onShutterChange = viewModel::updateShutterSpeed,
+            onIsSettingsVisibleChange = viewModel::updateIsSettingsVisible,
+            onPhotoCaptured = viewModel::storePhotoInGallery,
+        )
     )
 }
 
@@ -102,28 +113,19 @@ fun CameraScreen(viewModel: CameraViewModel = viewModel()) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CameraContent(
-    onPhotoCaptured: (Bitmap) -> Unit,
-    lastCapturedPhoto: Bitmap? = null
+    state: CameraState,
+    actions: CameraActions,
 ) {
 
     val context: Context = LocalContext.current
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
     val cameraController: LifecycleCameraController = remember { LifecycleCameraController(context) }
     var previewView by remember { mutableStateOf<PreviewView?>(null) }
-    var showSettings by remember { mutableStateOf(false) }
-    var exposureValue by remember { mutableFloatStateOf(0f) }
-    var currentResolution by remember { mutableStateOf(CameraResolution.FHD_1080P) }
-    var isoValue by remember { mutableFloatStateOf(100f) } // Default ISO
-    var shutterSpeedNanos by remember { mutableLongStateOf(16666666L) } // Default ~1/60s in nanoseconds
-    val zoomState by cameraController.zoomState.observeAsState()
-    val currentZoomRatio = zoomState?.zoomRatio ?: 1.0f
-    val minZoom = zoomState?.minZoomRatio ?: 1f
-    val maxZoom = zoomState?.maxZoomRatio ?: 1f
 
-    LaunchedEffect(currentResolution, isoValue, shutterSpeedNanos) {
+    LaunchedEffect(state.resolution, state.iso, state.shutterSpeedNanos, state.auto) {
         kotlinx.coroutines.delay(300)
 
-        val selector = getResolutionSelector(currentResolution.size)
+        val selector = getResolutionSelector(state.resolution.size)
         cameraController.previewResolutionSelector = selector
         cameraController.imageCaptureResolutionSelector = selector
         cameraController.setEnabledUseCases(LifecycleCameraController.IMAGE_CAPTURE or LifecycleCameraController.VIDEO_CAPTURE)
@@ -133,11 +135,24 @@ private fun CameraContent(
             return@LaunchedEffect
         }
 
+
+        val cameraControl = cameraController.cameraControl ?: return@LaunchedEffect
+        val control = Camera2CameraControl.from(cameraControl)
         val builder = Preview.Builder()
-        Camera2Interop.Extender(builder)
-            .setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF)
-            .setCaptureRequestOption(CaptureRequest.SENSOR_SENSITIVITY, isoValue.toInt())
-            .setCaptureRequestOption(CaptureRequest.SENSOR_EXPOSURE_TIME, shutterSpeedNanos)
+
+        val captureRequestOptions = if (state.auto) {
+            CaptureRequestOptions.Builder()
+                .setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
+                .build()
+        } else {
+            CaptureRequestOptions.Builder()
+                .setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF)
+                .setCaptureRequestOption(CaptureRequest.SENSOR_SENSITIVITY, state.iso.toInt())
+                .setCaptureRequestOption(CaptureRequest.SENSOR_EXPOSURE_TIME, state.shutterSpeedNanos)
+                .build()
+        }
+        control.setCaptureRequestOptions(captureRequestOptions)
+
         val preview = builder.build()
         preview.surfaceProvider = previewView!!.surfaceProvider
     }
@@ -147,7 +162,7 @@ private fun CameraContent(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text(text = "Take photo") },
-                onClick = { capturePhoto(context, cameraController, onPhotoCaptured) },
+                onClick = { capturePhoto(context, cameraController, actions.onPhotoCaptured) },
                 icon = { Icon(imageVector = Icons.Default.Camera, contentDescription = "Camera capture icon") }
             )
         },
@@ -173,10 +188,10 @@ private fun CameraContent(
             )
 
             IconButton(
-                onClick = { showSettings = !showSettings },
+                onClick = { actions.onIsSettingsVisibleChange(!state.isSettingsVisible) },
                 modifier = Modifier
-                    .align(Alignment.TopEnd) // Positions button at top-right
-                    .statusBarsPadding()     // Avoids the notch/status bar
+                    .align(Alignment.TopEnd)
+                    .statusBarsPadding()
                     .padding(16.dp)
                     .background(Color.Black.copy(alpha = 0.4f), CircleShape) // Background for visibility
             ) {
@@ -187,41 +202,24 @@ private fun CameraContent(
                 )
             }
 
-            if (showSettings) {
+            if (state.isSettingsVisible) {
                 Popup(
                     alignment = Alignment.TopCenter,
-                    onDismissRequest = { showSettings = false }, // Automatically detects outside taps
+                    onDismissRequest = { actions.onIsSettingsVisibleChange(false) },
                     properties = PopupProperties(focusable = true)
                 ) {
                     CameraSettingsPanel(
-                        exposureValue = exposureValue,
-                        onExposureChange = { newValue ->
-                            exposureValue = newValue
-                            cameraController.cameraControl?.setExposureCompensationIndex(newValue.toInt())
-                        },
-                        currentResolution = currentResolution,
-                        onResolutionChange = { currentResolution = it },
-                        isoValue = isoValue,
-                        onIsoChange = { newValue ->
-                            isoValue = newValue
-                        },
-                        shutterValue = shutterSpeedNanos,
-                        onShutterChange = { newValue ->
-                            shutterSpeedNanos = newValue
-                        },
-                        zoomRatio = currentZoomRatio,
-                        zoomRange = minZoom..maxZoom,
-                        onZoomChange = { zoom ->
-                            cameraController.setZoomRatio(zoom)
-                        }
+                        state = state,
+                        actions = actions,
+                        cameraController = cameraController,
                     )
                 }
             }
 
-            if (lastCapturedPhoto != null) {
+            if (state.capturedImage != null) {
                 LastPhotoPreview(
                     modifier = Modifier.align(alignment = BottomStart),
-                    lastCapturedPhoto = lastCapturedPhoto
+                    lastCapturedPhoto = state.capturedImage,
                 )
             }
         }
@@ -274,31 +272,22 @@ fun Bitmap.rotateBitmap(rotationDegrees: Int): Bitmap {
     return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
 }
 
-enum class CameraResolution(val label: String, val size: Size) {
-    STANDARD("480p", Size(640, 480)),
-    HD_720P("720p", Size(1280, 720)),
-    FHD_1080P("1080p", Size(1920, 1080)),
-    UTRAL_HD_4K("4K", Size(3840, 2160)),
-}
-
 @Composable
 fun CameraSettingsPanel(
-    exposureValue: Float,
-    onExposureChange: (Float) -> Unit,
-    currentResolution: CameraResolution,
-    onResolutionChange: (CameraResolution) -> Unit,
-    isoValue: Float,
-    onIsoChange: (Float) -> Unit,
-    shutterValue: Long,
-    onShutterChange: (Long) -> Unit,
-    zoomRatio: Float,
-    zoomRange: ClosedFloatingPointRange<Float>,
-    onZoomChange: (Float) -> Unit,
+    state: CameraState,
+    actions: CameraActions,
+    cameraController: LifecycleCameraController,
 ) {
+    val zoomState by cameraController.zoomState.observeAsState()
+    val currentZoomRatio = zoomState?.zoomRatio ?: 1.0f
+    val minZoom = zoomState?.minZoomRatio ?: 1f
+    val maxZoom = zoomState?.maxZoomRatio ?: 1f
+    val zoomRange = minZoom..maxZoom
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.8f),
+            .fillMaxHeight(0.95f),
         color = Color.Black.copy(alpha = 0.8f),
         shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
     ) {
@@ -306,50 +295,67 @@ fun CameraSettingsPanel(
             modifier = Modifier.padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Camera Settings", style = MaterialTheme.typography.titleLarge, color = Color.White)
+            Text("Camera Settings", style = MaterialTheme.typography.titleLarge)
 
             // Exposure Slider
-            Text("Exposure: ${exposureValue.toInt()}", color = Color.White)
+            Text("Exposure: ${state.exposure.toInt()}")
             Slider(
-                value = exposureValue,
-                onValueChange = onExposureChange,
+                value = state.exposure,
+                onValueChange = {
+                    actions.onExposureChange(it)
+                    cameraController.cameraControl?.setExposureCompensationIndex(it.toInt())
+                },
                 valueRange = -16f..16f, // Typical range, check camera capabilities for exacts
                 steps = 9
             )
 
-            Text("Resolution", color = Color.White)
+            // Resolution
+            Text("Resolution")
             Row {
                 ResolutionDropdown(
-                    currentResolution = currentResolution,
-                    onResolutionChange = onResolutionChange
+                    currentResolution = state.resolution,
+                    onResolutionChange = actions.onResolutionChange,
                 )
             }
 
-            // ISO Slider (Range typically 100 - 3200)
-            Text("ISO: ${isoValue.toInt()}", color = Color.White)
-            Slider(
-                value = isoValue,
-                onValueChange = onIsoChange,
-                valueRange = 100f..3200f,
-                steps = 10
-            )
+            // Auto checkbox
+            Text("Auto")
+            Row {
+                Switch(
+                    checked = state.auto,
+                    onCheckedChange = actions.onAutoChange
+                )
+            }
 
-            // Shutter Speed Slider
-            // Represented in Nanoseconds: 1/1000s = 1,000,000ns
-            Text("Shutter: 1/${(1_000_000_000L / shutterValue)}s", color = Color.White)
-            Slider(
-                value = shutterValue.toFloat(),
-                onValueChange = { onShutterChange(it.toLong()) },
-                valueRange = 1_000_000f..100_000_000f, // 1/1000s to 1/10s
-            )
+            if (!state.auto) {
+                // ISO Slider (Range typically 100 - 3200)
+                Text("ISO: ${state.iso.toInt()}")
+                Slider(
+                    value = state.iso,
+                    onValueChange = actions.onIsoChange,
+                    valueRange = 100f..3200f,
+                    steps = 10
+                )
+
+                // Shutter Speed Slider
+                // Represented in Nanoseconds: 1/1000s = 1,000,000ns
+                Text("Shutter: 1/${(1_000_000_000L / state.shutterSpeedNanos)}s", color = Color.White)
+                Slider(
+                    value = state.shutterSpeedNanos.toFloat(),
+                    onValueChange = { actions.onShutterChange(it.toLong()) },
+                    valueRange = 1_000_000f..100_000_000f, // 1/1000s to 1/10s
+                )
+            }
 
             Text(
-                text = "Zoom: ${"%.1f".format(zoomRatio)}x",
+                text = "Zoom: ${"%.1f".format(currentZoomRatio)}x",
                 color = Color.White
             )
             Slider(
-                value = zoomRatio,
-                onValueChange = onZoomChange,
+                value = currentZoomRatio,
+                onValueChange = {
+                    cameraController.setZoomRatio(it)
+                },
                 valueRange = zoomRange,
             )
         }
@@ -435,7 +441,18 @@ private fun LastPhotoPreview(
 @androidx.compose.ui.tooling.preview.Preview
 @Composable
 fun PreviewCameraContent() {
+    val state = CameraState()
+    val actions = CameraActions(
+        onExposureChange = {},
+        onResolutionChange = {},
+        onAutoChange = {},
+        onIsoChange = {},
+        onShutterChange = {},
+        onPhotoCaptured = {},
+        onIsSettingsVisibleChange = {}
+    )
     CameraContent(
-        onPhotoCaptured = {}
+        state,
+        actions,
     )
 }
