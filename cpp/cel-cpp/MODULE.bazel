@@ -1,0 +1,8 @@
+module(
+    name = "cel_cpp_example",
+    version = "0.1.0",
+)
+
+bazel_dep(name = "cel-cpp", version = "0.14.0")
+bazel_dep(name = "abseil-cpp", version = "20260107.1")
+bazel_dep(name = "protobuf", version = "29.0")
