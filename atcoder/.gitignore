@@ -1,0 +1,8 @@
+*
+!*/
+!*.cc
+!.gitignore
+!*.rs
+!*.py
+!*.kt
+!*.java
