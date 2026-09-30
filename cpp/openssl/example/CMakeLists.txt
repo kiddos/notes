@@ -13,7 +13,8 @@ include(ExternalProject)
 set(OPENSSL_BUILD_DIR "${CMAKE_BINARY_DIR}/openssl-build")
 set(OPENSSL_INSTALL_PREFIX "${OPENSSL_BUILD_DIR}/openssl")
 ExternalProject_Add(openssl_local
-  URL               https://github.com/openssl/openssl/releases/download/openssl-3.6.1/openssl-3.6.1.tar.gz
+  URL https://github.com/openssl/openssl/releases/download/openssl-4.0.3/openssl-4.0.3.tar.gz
+  URL_HASH SHA256=325b5c806167c13b40b1ffeadfe0248197c00eccc4cf123ec1e28d2d2fd216d9
   # GIT_REPOSITORY    https://github.com/openssl/openssl
   # GIT_TAG           openssl-3.6.1
   BUILD_IN_SOURCE   TRUE
