@@ -12,11 +12,11 @@ include(FetchContent)
 FetchContent_Declare(
   hiredis
   GIT_REPOSITORY https://github.com/redis/hiredis.git
-  GIT_TAG        v1.3.0  # Use a stable release tag for hiredis
+  GIT_TAG        v1.4.1  # Use a stable release tag for hiredis
   SOURCE_DIR     ${CMAKE_BINARY_DIR}/_deps/hiredis-src
 )
 
 FetchContent_MakeAvailable(hiredis)
 
-add_executable(sample sample.cc)
-target_link_libraries(sample PRIVATE hiredis)
+add_executable(example example.cc)
+target_link_libraries(example PRIVATE hiredis)
